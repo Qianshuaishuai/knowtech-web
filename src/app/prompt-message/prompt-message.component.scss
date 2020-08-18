@@ -1,0 +1,97 @@
+.prompt {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    background: #dff0d8;
+    top: 0px;
+    text-align: center;
+    opacity: 0;
+    z-index: 10244201;
+}
+
+.prompt span {
+    color: #57AB17 !important;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+@keyframes prompt {
+    0% {
+      opacity: 0;
+    }
+
+    8% {
+      opacity: 1;
+    }
+
+    83% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+    }
+}
+
+@-moz-keyframes prompt {
+  0% {
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  83% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes prompt {
+  0% {
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  83% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@-o-keyframes prompt {
+  0% {
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  83% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.animation {
+    animation: prompt 2300ms;
+    -moz-animation: prompt 2300ms;
+    -webkit-animation: prompt 2300ms;
+    -o-animation: prompt 2300ms;
+}
