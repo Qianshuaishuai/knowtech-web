@@ -12,15 +12,23 @@ import { PromptMessageComponent } from './prompt-message/prompt-message.componen
 import { MessageService } from './service/message.service'
 import { StorageService } from './service/storage.service';
 
+// import module
+import { ElModule } from 'element-angular'
+
+// if you use webpack, import style
+import 'element-angular/theme/index.css'
+
+
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    PromptMessageComponent
+    PromptMessageComponent,
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ElModule.forRoot(),
   ],
   providers: [MessageService,StorageService],
   bootstrap: [AppComponent]
