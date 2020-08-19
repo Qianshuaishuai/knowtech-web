@@ -1,6 +1,26 @@
-<el-radio-group [model]="'上海'">
-  <el-radio-button label="上海">上海</el-radio-button>
-  <el-radio-button label="北京">北京</el-radio-button>
-  <el-radio-button label="广州">广州</el-radio-button>
-  <el-radio-button label="深圳">深圳</el-radio-button>
-</el-radio-group>
+<div class="page">
+  <div class="top">
+    <img class="logo" src="../../assets/common/logo.png">
+    <span class="name">亲知科技</span>
+  </div>
+  <div class="content">
+    <!-- 登录卡片 -->
+    <div class="login-box">
+      <span class="tip">欢迎登录亲知科技</span>
+      <input class="phone" type="text" placeholder="请填写手机号">
+      <input class="password" type="password" placeholder="请填写密码">
+      <div class="child-box">
+        <div class="register">立即注册</div>
+        <div class="forget">忘记密码?</div>
+      </div>
+      <button class="login" (click)="login()">登录</button>
+    </div>
+    <!-- 注册卡片 -->
+    <div class="register-box">
+      
+    </div>
+  </div>
+  <div class="bottom">
+    <div class="title">2020 &copy; 亲知科技  Power by KnowTech</div>
+  </div>
+</div>  

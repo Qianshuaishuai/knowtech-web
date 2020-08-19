@@ -12,4 +12,18 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
   }
 
+  //登录操作
+  login(){
+
+  }
+
+  //跳转注册
+  register(){
+
+  }
+
+  //忘记密码
+  forget(){
+
+  }
 }
