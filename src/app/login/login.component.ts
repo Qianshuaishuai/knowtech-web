@@ -3,6 +3,8 @@ import { Location } from '@angular/common';
 import { UserService } from '../service/user.service'
 import { MessageService } from '../service/message.service';
 import { ElMessageService } from 'element-angular'
+import { CodeValidator } from "code-validator"
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 import {
   Subscription,
@@ -43,6 +45,16 @@ export class LoginComponent implements OnInit {
   unClickTime = 0
   timer: any
 
+  //图形验证码相关
+  verifyCodeStr = ""
+  base64: SafeUrl
+  verifyCodeValue: string
+  cv = new CodeValidator({
+    width:160,
+    height:30,
+    length:4
+  })
+
   //加载框相关
   loading = false
   loadingTip = "登录中"
@@ -54,10 +66,18 @@ export class LoginComponent implements OnInit {
     private messageService: MessageService,
     private route: ActivatedRoute,
     private router: Router,
-    private message: ElMessageService, ) { }
+    private message: ElMessageService,
+    private sanitizer: DomSanitizer ) { }
 
   ngOnInit() {
     this.checkIsLogin()
+    this.randomVerifyCode()
+  }
+
+  randomVerifyCode() {
+    let res = this.cv.random()
+    this.base64 = this.sanitizer.bypassSecurityTrustUrl(res.base)
+    this.verifyCodeValue = res.value
   }
 
   checkIsLogin() {
@@ -76,6 +96,12 @@ export class LoginComponent implements OnInit {
     }
     if (this.loginPassword == "") {
       this.message['warning']("密码不能为空")
+      return
+    }
+
+    if(this.verifyCodeStr != this.verifyCodeValue){
+      this.message['error']("图形验证码错误")
+      this.randomVerifyCode()
       return
     }
 
@@ -168,12 +194,16 @@ export class LoginComponent implements OnInit {
     } else {
       phoneStr = this.forgetPhone
     }
+    if (phoneStr == "") {
+      this.message['warning']("手机号不能为空")
+      return
+    }
     this.userSubscription = this.userService.code(phoneStr).subscribe(response => {
       if (response.F_responseNo == OK_RESPONSE_NUMBER) {
-        this.messageService.sendPromptMessage("获取成功")
+        this.message['success']("获取成功")
         this.startUnClickTime()
       } else {
-        this.messageService.sendPromptMessage(response.F_responseMsg)
+        this.message['error'](response.F_responseMsg)
       }
     });
 

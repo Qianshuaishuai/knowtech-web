@@ -9,6 +9,10 @@
       <span class="tip">欢迎登录亲知科技</span>
       <input class="phone" type="text" placeholder="请填写手机号" [(ngModel)]="loginPhone">
       <input class="password" type="password" placeholder="请填写密码" [(ngModel)]="loginPassword">
+      <div class="verify-box">
+        <input class="code" type="text" maxlength="4" placeholder="请输入图形验证码" [(ngModel)]="verifyCodeStr">
+        <img class="verify" [src]="base64" (click)="randomVerifyCode()"/>
+      </div>
       <div class="child-box">
         <div class="register" (click)="changeModule(2)">立即注册</div>
         <div class="forget" (click)="changeModule(3)">忘记密码?</div>
@@ -22,7 +26,7 @@
       <div class="code-box">
         <input class="code" type="text" placeholder="请输入验证码" [(ngModel)]="registerCodeStr">
         <span class="check" (click)="sendCode(2)" *ngIf="unClickTime == 0">获取验证码</span>
-        <span class="check" *ngIf="unClickTime != 0" style="color:#999999;">{{unClickTime}}秒</span>
+        <span class="check" *ngIf="unClickTime != 0" style="color:#999999;">{{unClickTime}}秒后重新获取</span>
       </div>
       <input class="password" type="password" placeholder="请填写密码" [(ngModel)]="registerPassword">
       <input class="password" type="password" placeholder="请再次填写密码" [(ngModel)]="registerAgainPassword">
@@ -39,7 +43,7 @@
       <div class="code-box">
         <input class="code" type="text" placeholder="请输入验证码" [(ngModel)]="forgetCodeStr">
         <span class="check" (click)="sendCode(3)" *ngIf="unClickTime == 0">获取验证码</span>
-        <span class="check" *ngIf="unClickTime != 0" style="color:#999999;">{{unClickTime}}秒</span>
+        <span class="check" *ngIf="unClickTime != 0" style="color:#999999;">{{unClickTime}}秒后重新获取</span>
       </div>
       <input class="password" type="password" placeholder="请填写新密码" [(ngModel)]="forgetPassword">
       <input class="password" type="password" placeholder="请再次填写新密码" [(ngModel)]="forgetAgainPassword">
