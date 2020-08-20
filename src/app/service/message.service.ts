@@ -7,6 +7,8 @@ export class MessageService {
 
     constructor(private storageService: StorageService) { }
 
+    private isLogin = false
+
     promptMessageSubject: Subject<string> = new Subject();
 
     sendPromptMessage(message: string) {
@@ -16,4 +18,21 @@ export class MessageService {
     getPromptMessage(): Observable<string> {
         return this.promptMessageSubject.asObservable();
     }
+
+    setLoginMessage(status: boolean): void {
+        this.isLogin = status
+    }
+
+    getLoginMessage(): boolean {
+        return this.isLogin;
+    }
+
+    setPhoneMessage(phone: string): void {
+        this.storageService.write('phone', phone);
+    }
+
+    getPhoneMessage(): string {
+        return this.storageService.read<string>('phone');
+    }
+
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { UserService } from '../service/user.service'
 import { MessageService } from '../service/message.service';
+import { ElMessageService } from 'element-angular'
 
 import {
   Subscription,
@@ -42,43 +43,129 @@ export class LoginComponent implements OnInit {
   unClickTime = 0
   timer: any
 
+  //加载框相关
+  loading = false
+  loadingTip = "登录中"
+
   userSubscription: Subscription
 
   constructor(private location: Location,
     private userService: UserService,
     private messageService: MessageService,
     private route: ActivatedRoute,
-    private router: Router,) { }
+    private router: Router,
+    private message: ElMessageService, ) { }
 
   ngOnInit() {
+    this.checkIsLogin()
+  }
+
+  checkIsLogin() {
+    const phone = this.messageService.getPhoneMessage()
+ 
+    if (phone) {
+      this.router.navigate([`../user/`], { relativeTo: this.route });
+    }
   }
 
   //登录操作
-  login(){
+  login() {
+    if (this.loginPhone == "") {
+      this.message['warning']("手机号不能为空")
+      return
+    }
+    if (this.loginPassword == "") {
+      this.message['warning']("密码不能为空")
+      return
+    }
 
+    this.userSubscription = this.userService.login(this.loginPhone, this.loginPassword).subscribe(response => {
+      if (response.F_responseNo == OK_RESPONSE_NUMBER) {
+        this.message['success']("登录成功")
+        this.router.navigate([`../user/`], { relativeTo: this.route });
+        this.messageService.setLoginMessage(true)
+        this.messageService.setPhoneMessage(this.loginPhone)
+      } else {
+        this.message['error'](response.F_responseMsg)
+      }
+    });
   }
 
-  //跳转注册
-  register(){
-    
+  //注册
+  register() {
+    if (this.registerPhone == "") {
+      this.message['warning']("手机号不能为空")
+      return
+    }
+    if (this.registerPassword == "") {
+      this.message['warning']("密码不能为空")
+      return
+    }
+
+    if (this.registerCodeStr == "") {
+      this.message['warning']("验证玛不能为空")
+      return
+    }
+
+    if (this.registerPassword != this.registerAgainPassword) {
+      this.message['warning']("两次密码不一样")
+      return
+    }
+
+    this.userSubscription = this.userService.register(this.registerPhone, this.registerPassword, this.registerCodeStr).subscribe(response => {
+      if (response.F_responseNo == OK_RESPONSE_NUMBER) {
+        this.message['success']("注册成功")
+        this.messageService.setLoginMessage(true)
+        this.messageService.setPhoneMessage(this.registerPhone)
+        this.router.navigate([`../user/`], { relativeTo: this.route });
+      } else {
+        this.message['error'](response.F_responseMsg)
+      }
+    });
   }
 
   //忘记密码
-  forget(){
+  forget() {
+    if (this.forgetPhone == "") {
+      this.message['warning']("手机号不能为空")
+      return
+    }
+    if (this.forgetPassword == "") {
+      this.message['warning']("新密码不能为空")
+      return
+    }
 
+    if (this.forgetCodeStr == "") {
+      this.message['warning']("验证玛不能为空")
+      return
+    }
+
+    if (this.forgetPassword != this.forgetAgainPassword) {
+      this.message['warning']("两次密码不一样")
+      return
+    }
+
+    this.userSubscription = this.userService.forget(this.forgetPhone, this.forgetPassword, this.forgetCodeStr).subscribe(response => {
+      if (response.F_responseNo == OK_RESPONSE_NUMBER) {
+        this.message['success']("修改成功")
+        this.changeModule(1)
+      } else {
+        this.message['error'](response.F_responseMsg)
+      }
+    });
   }
 
   //切换模块
-  changeModule(index){
+  changeModule(index) {
     this.moduleIndex = index
   }
 
-  //发送验证码 type为1是注册，2是修改密码
-  sendCode(type){
+  //发送验证码 type为2是注册，3是修改密码
+  sendCode(type) {
     var phoneStr = ""
-    if(type == 1){
+    if (type == 2) {
       phoneStr = this.registerPhone
-    }else{
+    } else {
       phoneStr = this.forgetPhone
     }
     this.userSubscription = this.userService.code(phoneStr).subscribe(response => {
@@ -89,7 +176,7 @@ export class LoginComponent implements OnInit {
         this.messageService.sendPromptMessage(response.F_responseMsg)
       }
     });
-    
+
   }
 
   //验证码倒计时
@@ -98,12 +185,22 @@ export class LoginComponent implements OnInit {
 
     this.timer = setInterval(() => {
 
-      this.unClickTime = this.unClickTime -1
+      this.unClickTime = this.unClickTime - 1
 
-      if (this.unClickTime<=0){
+      if (this.unClickTime <= 0) {
         clearInterval(this.timer)
       }
-  
-    },1000);
+
+    }, 1000);
+  }
+
+  //开关加载框
+  openLoading(tip) {
+    this.loading = true
+    this.loadingTip = tip
+  }
+
+  closeLoading() {
+    this.loading = false
   }
 }

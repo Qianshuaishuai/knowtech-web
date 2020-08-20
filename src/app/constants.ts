@@ -6,7 +6,7 @@ import {
  */
 // export const BASE_URL = environment.production ? 'http://api.360eliteclub.com/' : 'http://api.360eliteclub.com/';
 // export const BASE_URL = environment.production ? 'http://apiq.qimsj.com/' : 'http://apiq.qimsj.com/';
-export const BASE_URL = environment.production ? 'http://localhost:6499/' : 'http://localhost:6499/';
+export const BASE_URL = environment.production ? 'http://localhost:6490/' : 'http://localhost:6490/';
 export const BASE_URL_BEIKE = environment.production ? 'https://api.qimsj.com/' : 'https://api.qimsj.com/';
 
 //网络请求状态码
