@@ -8,9 +8,5 @@
     <div class="user-tip">{{userTip}}</div>
     <div class="user-logout" (click)="logout()">退出</div>
   </div>
-  <div class="operation-box">
-    <input class="search" type="text" [(ngModel)]="searchStr" placeholder="请输入要搜索的名称">
-    <el-button type="primary">搜索</el-button>
-    <el-button type="primary">添加新书本</el-button>
-  </div>
+  <app-book></app-book>
 </div>

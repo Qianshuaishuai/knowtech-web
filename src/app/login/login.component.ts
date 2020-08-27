@@ -111,6 +111,7 @@ export class LoginComponent implements OnInit {
         this.router.navigate([`../user/`], { relativeTo: this.route });
         this.messageService.setLoginMessage(true)
         this.messageService.setPhoneMessage(this.loginPhone)
+        this.messageService.setUserInfo(response.F_data)
       } else {
         this.message['error'](response.F_responseMsg)
       }

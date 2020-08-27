@@ -43,7 +43,7 @@ export class UserComponent implements OnInit {
   initUserTip(){
     const phone = this.messageService.getPhoneMessage()
     if(phone){
-      this.userTip = "欢迎" + phone + "用户"
+      this.userTip = "欢迎用户" + phone
     }
   }
 
@@ -51,6 +51,7 @@ export class UserComponent implements OnInit {
     this.modelIndex = event
   }
 
+  //登出
   logout(){
     this.userSubscription = this.userService.logout(this.messageService.getPhoneMessage()).subscribe(response => {
       if (response.F_responseNo == OK_RESPONSE_NUMBER) {

@@ -31,12 +31,12 @@ export class UserService {
    * 登录
    *
    */
-  login(phone: string, password: string): Observable<CommonResponse> {
+  login(phone: string, password: string): Observable<UserResponse> {
     const params = new HttpParams()
       .set('phone', String(phone))
       .set('password', String(password))
 
-    return this.httpClientService.getRequest<CommonResponse>('v1/user/login', 0, {
+    return this.httpClientService.getRequest<UserResponse>('v1/user/login', 0, {
       params: params
     });
   }

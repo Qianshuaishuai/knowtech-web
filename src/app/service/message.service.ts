@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observable, SubscriptionLike } from 'rxjs';
 import { StorageService } from './storage.service';
+import { UserInfo } from '../bean/user'
 
 @Injectable()
 export class MessageService {
@@ -8,6 +9,7 @@ export class MessageService {
     constructor(private storageService: StorageService) { }
 
     private isLogin = false
+    private userInfo = new UserInfo
 
     promptMessageSubject: Subject<string> = new Subject();
 
@@ -25,6 +27,14 @@ export class MessageService {
 
     getLoginMessage(): boolean {
         return this.isLogin;
+    }
+
+    setUserInfo(userInfo: UserInfo): void {
+        this.userInfo = userInfo
+    }
+
+    getUserInfo(): UserInfo {
+        return this.userInfo;
     }
 
     setPhoneMessage(phone: string): void {

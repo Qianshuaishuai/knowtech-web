@@ -15,3 +15,13 @@ export const ERROR_PARAMS_RESPONSE_NUMBER = 10002;
 export const UNAUTHOR_STATUS_LOGIN_NUMBER = 12100;
 export const ERROR_STATUS_LOGIN_NUMBER = 12105;
 export const NO_RESOURCE_RESPONSE_NUMBER = 13300;
+
+//年级选择
+export const Grades = [{ "name": "一年级", "value": 1 }, { "name": "二年级", "value": 2 }, { "name": "三年级", "value": 3 }, { "name": "四年级", "value": 4 }, { "name": "五年级", "value": 5 }, { "name": "六年级", "value": 6 }, { "name": "初一", "value": 7 }, { "name": "初二", "value": 8 }, { "name": "初三", "value": 9 }, { "name": "高一", "value": 10 }, { "name": "高二", "value": 11 }, { "name": "高三", "value": 12 }]
+
+//COS相关
+export const COS_APP_ID = "AKID3uWQ4RdQOnwq784pKI7i3g6LK4WihNTM"
+export const COS_APP_SECRET = "sa86rNfLM9nI0TfhigPzKVdW92YpsjKf"
+export const COS_BUCKET = "knowtech-1302822727"
+export const COS_REGION = "ap-guangzhou"
+export const COS_STORAGE_CLASS = "STANDARD"
