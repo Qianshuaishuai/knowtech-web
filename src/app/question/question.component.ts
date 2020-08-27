@@ -217,6 +217,7 @@ export class QuestionComponent implements OnInit {
         id = "frame-resource"
         break
     }
+
     document.getElementById(id).click();
   }
 

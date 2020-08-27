@@ -62,7 +62,7 @@
       <span>请选择封面:</span>
       <div class="upload-box">
         <img (click)="clickUpload(1)" *ngIf="operatBook.cover" [src]="operatBook.cover" class="avatar">
-        <input id="book-cover" class="upload" type="file" *ngIf="!operatBook.cover"
+        <input id="book-cover" class="upload" type="file"
           (change)="uploadCover($event.target.files,1,0)">
         <img class="icon" src="../../assets/common/common-upload.png" *ngIf="!operatBook.cover"
           (click)="clickUpload(1)">
@@ -81,7 +81,7 @@
           <span>请选择书页图片:</span>
           <div class="upload-box">
             <img id="page-cover" *ngIf="page.cover" [src]="page.cover" class="avatar">
-            <input id="page-cover" class="upload" type="file" *ngIf="!page.cover"
+            <input id="page-cover" class="upload" type="file"
               (change)="uploadCover($event.target.files,2,i)">
           </div>
         </div>
@@ -95,7 +95,7 @@
             <span>请选择框图对应资源文件:</span>
             <div class="upload-box">
               <div *ngIf="frame.resourceUrl" class="resource" style="margin-top: 60px;">已上传资源</div>
-              <input id="frame-resource" class="upload" type="file" *ngIf="!frame.resourceUrl"
+              <input id="frame-resource" class="upload" type="file"
                 (change)="uploadResource($event.target.files,i,f)">
             </div>
           </div>

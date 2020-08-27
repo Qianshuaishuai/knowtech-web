@@ -260,6 +260,7 @@ export class BookComponent implements OnInit {
         id = "frame-resource"
         break
     }
+
     document.getElementById(id).click();
   }
 

@@ -47,8 +47,8 @@
       <span>请选择题目图片:</span>
       <div class="upload-box">
         <img (click)="clickUpload(1)" *ngIf="operatQuestion.image" [src]="operatQuestion.image" class="avatar">
-        <input id="question-cover" class="upload" type="file" *ngIf="!operatQuestion.image"
-          (change)="uploadCover($event.target.files,1,0)">
+        <input id="question-cover" class="upload" type="file"
+          (change)="uploadCover($event.target.files)">
         <img class="icon" src="../../assets/common/common-upload.png" *ngIf="!operatQuestion.image"
           (click)="clickUpload(1)">
       </div>
@@ -65,7 +65,7 @@
         <span>请选择框图对应资源文件:</span>
         <div class="upload-box">
           <div *ngIf="frame.resourceUrl" class="resource" style="margin-top: 60px;">已上传资源</div>
-          <input id="frame-resource" class="upload" type="file" *ngIf="!frame.resourceUrl"
+          <input id="frame-resource" class="upload" type="file"
             (change)="uploadResource($event.target.files,i)">
         </div>
       </div>
