@@ -8,5 +8,6 @@
     <div class="user-tip">{{userTip}}</div>
     <div class="user-logout" (click)="logout()">退出</div>
   </div>
-  <app-book></app-book>
+  <app-book *ngIf="modelIndex==1"></app-book>
+  <app-question *ngIf="modelIndex==2"></app-question>
 </div>

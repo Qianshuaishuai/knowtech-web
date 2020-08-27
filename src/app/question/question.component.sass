@@ -1,0 +1,110 @@
+.page
+    display: flex
+    flex-direction: column
+    // justify-content: center
+    overflow-y: auto
+    .operation-box
+        display: flex
+        flex-direction: row
+        align-items: center
+        margin-top: 12px
+        margin-right: 36px
+        margin-bottom: 48px
+        justify-content: flex-end
+        .search
+            width: 360px
+            height: 28px
+            border: 1px solid #999999
+            border-radius: 2px
+            padding: 6px 8px
+            margin-right: 24px
+    .table
+        margin: 0 auto
+        display: flex
+        flex-direction: column
+        align-items: center
+        .pagination
+            margin-top: 24px
+    .add-box
+        display: flex
+        flex-direction: column
+        border-radius: 4px
+        border: 1px solid #999999
+        width: 500px
+        padding: 24px 24px
+        margin: 0 auto
+        .title
+            width: 100%
+            text-align: center
+            font-size: 20px
+        .input-box
+            display: flex
+            flex-direction: row
+            align-items: center
+            margin-top: 18px
+            .tip
+                font-size: 14px
+                color: #1c1c1c
+                margin-right: 24px
+                width: 100px
+            .input
+                width: 300px
+                height: 36px
+                border-radius: 1px
+                border: 1px solid #f0f0f0
+                font-size: 16px
+                padding: 8px 12px
+                box-sizing: border-box
+                font-size: 15px
+        .hon-box
+            display: flex
+            flex-direction: row
+            align-items: center
+            justify-content: space-between
+            margin: 24px 0px
+        .upload-box
+            position: relative
+            width: 150px
+            height: 150px
+            border-radius: 6px
+            border: 1px dashed #c0ccda
+            vertical-align: top
+            background-color: #fbfdff
+            box-sizing: border-box
+            text-align: center
+            margin: 24px 0px
+            .avatar
+                width: 150px
+                height: 150px
+            .upload
+                width: 150px
+                height: 150px
+                opacity: 0
+            .icon
+                position: absolute
+                width: 32px
+                height: 32px
+                top: 59px
+                left: 59px
+        .cover-box
+            display: flex
+            flex-direction: row
+            span
+                padding-top: 24px
+                padding-right: 24px
+        .frame
+            margin-top: 12px
+            border-radius: 4px
+            border: 1px solid #999999
+            padding: 24px 24px
+            position: relative
+            .delete
+                width: 24px
+                height: 24px
+                position: absolute
+                top: 12px
+                right: 12px
+                cursor: pointer
+                
+.page::-webkit-scrollbar
+    display: none

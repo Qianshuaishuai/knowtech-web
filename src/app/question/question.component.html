@@ -1,0 +1,88 @@
+<div class="page" style="height: 100vh;">
+  <div class="operation-box">
+    <div *ngIf="modelIndex == 1">
+      <input class="search" type="text" [(ngModel)]="searchStr" placeholder="请输入要搜索的名称">
+      <el-button type="primary" (click)="search()">搜索</el-button>
+      <el-button type="primary" (click)="addNewQuestion()">添加新题目</el-button>
+    </div>
+
+    <div *ngIf="modelIndex == 2">
+      <el-button type="primary" (click)="backQuestionTable()">返回上一级</el-button>
+    </div>
+  </div>
+  <!-- 题目表格 -->
+  <div class="table" *ngIf="modelIndex == 1">
+    <el-table class="table" [model]="questionList">
+      <el-table-column model-key="name" label="题目名称" width="240">
+      </el-table-column>
+      <el-table-column model-key="image" label="题目图片" width="360">
+      </el-table-column>
+      <el-table-column model-key="imageAi" label="是否采用AI" width="120">
+      </el-table-column>
+      <el-table-column model-key="createTimeStr" label="修改时间" width="240">
+      </el-table-column>
+      <el-table-column label="操作" width="180">
+        <ng-template #slot let-scope="scope">
+          <el-button type="text" size="small" (click)="edit(scope)">编辑</el-button>
+          <el-button type="text" size="small" (click)="delete(scope)">删除</el-button>
+        </ng-template>
+      </el-table-column>
+    </el-table>
+    <el-pagination class="pagination" [model]="pageIndex" (modelChange)="changePage($event)" [total]="totalCount"
+      [page-size]="20" [layout]="['prev', 'pager', 'next', 'total']">
+    </el-pagination>
+  </div>
+  <!-- 添加新题目 -->
+  <div class="add-box" *ngIf="modelIndex == 2">
+    <div class="title">题目基本信息</div>
+    <div class="input-box">
+      <div class="tip">题目名称</div>
+      <input class="input" type="text" placeholder="请输入题目名称" [(ngModel)]="operatQuestion.name">
+    </div>
+    <div class="hon-box">
+      <el-checkbox [model]="operatQuestion.imageAi" (modelChange)="changeAi($event)">是否采用AI图像算法</el-checkbox>
+    </div>
+
+    <div class="cover-box">
+      <span>请选择题目图片:</span>
+      <div class="upload-box">
+        <img (click)="clickUpload(1)" *ngIf="operatQuestion.image" [src]="operatQuestion.image" class="avatar">
+        <input id="question-cover" class="upload" type="file" *ngIf="!operatQuestion.image"
+          (change)="uploadCover($event.target.files,1,0)">
+        <img class="icon" src="../../assets/common/common-upload.png" *ngIf="!operatQuestion.image"
+          (click)="clickUpload(1)">
+      </div>
+    </div>
+
+    <div class="title">题目截图框</div>
+    <div>
+      <el-button type="primary" (click)="addNewFrame()">添加新截图框</el-button>
+    </div>
+    <div class="frame" *ngFor="let frame of operatQuestion.frames;index as i">
+      <div class="title">第{{i+1}}个框</div>
+      <img class="delete" src="../../assets/common/common-delete.png" (click)="deleteFrame(i)">
+      <div class="resource-box">
+        <span>请选择框图对应资源文件:</span>
+        <div class="upload-box">
+          <div *ngIf="frame.resourceUrl" class="resource" style="margin-top: 60px;">已上传资源</div>
+          <input id="frame-resource" class="upload" type="file" *ngIf="!frame.resourceUrl"
+            (change)="uploadResource($event.target.files,i)">
+        </div>
+      </div>
+    </div>
+
+    <el-button type="primary" size="large" (click)="submit(scope)" style="margin-top:24px;margin-bottom: 100px">提交
+    </el-button>
+  </div>
+
+  <!-- 此处dialog暂用样式，后期考虑封装 -->
+  <el-dialog [title]="'提示'" [(visible)]="deleteTip" [center]="true" width="25%" top="36%">
+    <div class="content" style="display: flex;flex-direction:column;align-items: center;">
+      <span>确定是否删除这本题目？</span>
+      <div class="button" style="margin-top:24px;">
+        <el-button (click)="dialogCancel()">取消</el-button>
+        <el-button type="primary" (click)="dialogSure()" style="margin-left: 24px;">确定</el-button>
+      </div>
+    </div>
+  </el-dialog>
+</div>

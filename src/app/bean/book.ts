@@ -7,6 +7,7 @@ export class Book{
     pubDate = ""
     cover = ""
     imageAi = 0
+    createTimeStr = ""
     pages = new Array()
 }
 
