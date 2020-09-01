@@ -45,10 +45,25 @@ export class QuestionComponent implements OnInit {
   cos
   questionSubscription: Subscription
 
+  //画布相关
+  isShowFrame = false
+  canvas: any;
+  canvasPen: any;
+  frameWidth = '1400px'
+  frameHeight = '800px'
+  canvasWidth = 1400
+  canvasHeight = 800
+  isCanvasMouseDown = false
+  currentStartX = 0
+  currentStartY = 0
+  currentEndX = 0
+  currentEndY = 0
+  rectDatas = new Array()
+  readySrc = ""
+
   constructor(private message: ElMessageService,
     private questionService: QuestionService,
     private messageService: MessageService, ) {
-
   }
 
   ngOnInit() {
@@ -224,14 +239,17 @@ export class QuestionComponent implements OnInit {
   //增加新截图框
   addNewFrame(index) {
     if (!this.operatQuestion.image) {
-      this.message['error']('请给当前题目先选好图片')
+      this.message['error']('请给当前页面先选好图片')
       return
     }
-    this.operatQuestion.frames.push(new Frame())
+
+    this.isShowFrame = true
+    this.readySrc = this.operatQuestion.image
+    this.drawCanvas()
   }
 
   //删除截图框
-  deleteFrame(frameIndex){
+  deleteFrame(frameIndex) {
     this.operatQuestion.frames.splice(frameIndex, 1)
   }
 
@@ -247,12 +265,13 @@ export class QuestionComponent implements OnInit {
       return false
     }
 
-    this.operatQuestion.frames.forEach(frame => {
+    for(var f=0;f<this.operatQuestion.frames.length;f++){
+      var frame = this.operatQuestion.frames[f]
       if (!frame.resourceUrl) {
         this.message['warning']("有截图框的资源还未选择")
         return false
       }
-    });
+    }
 
     return true
   }
@@ -267,11 +286,11 @@ export class QuestionComponent implements OnInit {
       this.message['warning']("你还未登录")
       return
     }
-    
+
     const questionId = this.operatQuestion.id
     //当questionId存在时为编辑，不存在为新建
     if (questionId && questionId != 0) {
-      this.editQuestion(userId,questionId)
+      this.editQuestion(userId, questionId)
     } else {
       this.addQuestion(userId)
     }
@@ -292,8 +311,8 @@ export class QuestionComponent implements OnInit {
     });
   }
 
-  editQuestion(userId,questionId){
-    this.questionSubscription = this.questionService.editQuestion(String(userId),String(questionId), JSON.stringify(this.operatQuestion)).subscribe(response => {
+  editQuestion(userId, questionId) {
+    this.questionSubscription = this.questionService.editQuestion(String(userId), String(questionId), JSON.stringify(this.operatQuestion)).subscribe(response => {
       if (response.F_responseNo == OK_RESPONSE_NUMBER) {
         this.message['success']("更改成功")
         this.modelIndex = 1
@@ -305,4 +324,141 @@ export class QuestionComponent implements OnInit {
     });
   }
 
+  //另起画布用于裁剪
+  drawCanvas() {
+    this.canvas = document.getElementById('canvas');
+    this.canvasPen = this.canvas.getContext("2d");
+    var img = new Image()
+    img.src = this.readySrc
+    var that = this
+    img.onload = function () {
+      var imgWidth = img.width
+      var imgHeight = img.height
+
+      if (imgWidth > 1000 || imgHeight > 1000) {
+        imgWidth = imgWidth / 2
+        imgHeight = imgHeight / 2
+      }
+
+      that.frameWidth = imgWidth + "px"
+      that.frameHeight = imgHeight + "px"
+      that.canvasWidth = imgWidth
+      that.canvasHeight = imgHeight
+    }
+
+    // img.onload = function () {
+    //   that.canvasPen.drawImage(img,0,0)
+    // }
+
+    //画布动作监听
+    this.canvas.onmousedown = (e) => {
+      e.preventDefault();
+      that.isCanvasMouseDown = true
+      that.currentStartX = e.offsetX
+      that.currentStartY = e.offsetY
+      console.log(e)
+    }
+    //鼠标按下，松开，移动，离开事件执行
+    this.canvas.onmouseup = (e) => {
+      e.preventDefault();
+      that.isCanvasMouseDown = false
+      // that.currentEndX = e.clientX
+      // that.currentEndY = e.clientY
+    }
+    this.canvas.onmouseout = (e) => {
+      e.preventDefault();
+      that.isCanvasMouseDown = false
+    }
+    this.canvas.onmousemove = (e) => {
+      e.preventDefault();
+      if (that.isCanvasMouseDown) {
+        that.currentEndX = e.offsetX
+        that.currentEndY = e.offsetY
+        // that.drawCanvasFrame(that.canvasPen)
+        that.drawCanvasFrame(that.canvasPen)
+      }
+    }
+  }
+
+
+  drawCanvasFrame(ctx) {
+    const startX = this.currentStartX
+    const startY = this.currentStartY
+    const endX = this.currentEndX
+    const endY = this.currentEndY
+    ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
+    ctx.strokeStyle = "red"
+    ctx.strokeWidth = 1
+    ctx.lineWidth = 1
+
+    var rectWidth = Math.abs(startX - endX)
+    var rectHeight = Math.abs(startY - endY)
+
+    if (endX >= startX) {
+      if (endY >= startY) {
+        ctx.strokeRect(startX, startY, rectWidth, rectHeight);
+      } else {
+        ctx.strokeRect(startX, startY, rectWidth, -rectHeight);
+      }
+    } else {
+      if (endY >= startY) {
+        ctx.strokeRect(startX, startY, -rectWidth, rectHeight);
+      } else {
+        ctx.strokeRect(startX, startY, -rectWidth, -rectHeight);
+      }
+    }
+  }
+
+  frameCancel() {
+    this.isShowFrame = false
+  }
+
+  frameReset() {
+    this.canvas = document.getElementById('canvas');
+    this.canvasPen = this.canvas.getContext("2d");
+    this.canvasPen.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
+    this.currentStartX = 0
+    this.currentStartY = 0
+    this.currentEndX = 0
+    this.currentEndY = 0
+  }
+
+  frameSure() {
+    if (this.currentStartX == 0 && this.currentStartY == 0 && this.currentEndX == 0 && this.currentEndY == 0) {
+      this.message['error']("请先进行截取框图")
+      return
+    }
+
+    //判断是否与之前截图框重叠
+    for(var f=0;f<this.operatQuestion.frames.length;f++){
+      var frame = this.operatQuestion.frames[f]
+      if (frame.position&&frame.position != "") {
+        var positionObject = JSON.parse(frame.position)
+        if (this.currentStartX == positionObject.x1 && this.currentStartY == positionObject.y1 && this.currentEndX == positionObject.x2 && this.currentEndY == positionObject.y2) {
+          this.message['error']("此截框坐标与前面重叠！")
+          return
+        }
+      }
+    }
+
+    this.isShowFrame = false
+    var object = new Object({
+      x1: this.currentStartX,
+      y1: this.currentStartY,
+      x2: this.currentEndX,
+      y2: this.currentEndY
+    })
+    var newFrame = new Frame()
+    newFrame.position = JSON.stringify(object)
+    this.operatQuestion.frames.push(newFrame)
+  }
+
+  getPositionDetail(positionData) {
+    if (!positionData || positionData == "") {
+      return "未解析到截框坐标信息"
+    }
+
+    var positionObject = JSON.parse(positionData)
+    return "(" + positionObject.x1 + "," + positionObject.y1 + ")和(" + positionObject.x2 + "," + positionObject.y2 + ")"
+  }
 }

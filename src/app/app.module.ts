@@ -4,7 +4,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
-import { ImageCropperModule } from 'ng2-img-cropper';
 
 //Component
 import { AppComponent } from './app.component';
@@ -47,7 +46,6 @@ import { BookComponent } from './book/book.component';
     HttpClientModule,
     FormsModule,
     ElModule.forRoot(),
-    ImageCropperModule
   ],
   providers: [UserService, HttpClientService, LoaderService, MessageService, StorageService,BookService,QuestionService],
   bootstrap: [AppComponent]

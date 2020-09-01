@@ -47,8 +47,7 @@
       <span>请选择题目图片:</span>
       <div class="upload-box">
         <img (click)="clickUpload(1)" *ngIf="operatQuestion.image" [src]="operatQuestion.image" class="avatar">
-        <input id="question-cover" class="upload" type="file"
-          (change)="uploadCover($event.target.files)">
+        <input id="question-cover" class="upload" type="file" (change)="uploadCover($event.target.files)">
         <img class="icon" src="../../assets/common/common-upload.png" *ngIf="!operatQuestion.image"
           (click)="clickUpload(1)">
       </div>
@@ -62,11 +61,11 @@
       <div class="title">第{{i+1}}个框</div>
       <img class="delete" src="../../assets/common/common-delete.png" (click)="deleteFrame(i)">
       <div class="resource-box">
-        <span>请选择框图对应资源文件:</span>
+        <p>此框选取坐标为:{{getPositionDetail(frame.position)}}</p>
+        <p>请选择框图对应资源文件:</p>
         <div class="upload-box">
           <div *ngIf="frame.resourceUrl" class="resource" style="margin-top: 60px;">已上传资源</div>
-          <input id="frame-resource" class="upload" type="file"
-            (change)="uploadResource($event.target.files,i)">
+          <input id="frame-resource" class="upload" type="file" (change)="uploadResource($event.target.files,i)">
         </div>
       </div>
     </div>
@@ -85,4 +84,21 @@
       </div>
     </div>
   </el-dialog>
+
+  <!-- 画布截取 -->
+  <div class="frame-dialog" [ngStyle]="{'display': isShowFrame ? 'block' : 'none' }">
+    <div class="bg"></div>
+    <div class="frame-main">
+      <div class="frame-box" [ngStyle]="{'width': frameWidth, 'height': frameHeight }">
+        <img class="image" width="{{canvasWidth}}" height="{{canvasHeight}}" [src]="readySrc">
+        <canvas id="canvas" width="{{canvasWidth}}" height="{{canvasHeight}}"></canvas>
+      </div>
+      <div class="tip">当前选取坐标为:{{currentStartX}},{{currentStartY}}和{{currentEndX}},{{currentEndY}}</div>
+      <div class="button-box">
+        <el-button (click)="frameCancel()">取消</el-button>
+        <el-button type="primary" (click)="frameReset()" style="margin-left: 24px;">重置</el-button>
+        <el-button type="primary" (click)="frameSure()" style="margin-left: 24px;">确定</el-button>
+      </div>
+    </div>
+  </div>
 </div>

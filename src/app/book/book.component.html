@@ -62,8 +62,7 @@
       <span>请选择封面:</span>
       <div class="upload-box">
         <img (click)="clickUpload(1)" *ngIf="operatBook.cover" [src]="operatBook.cover" class="avatar">
-        <input id="book-cover" class="upload" type="file"
-          (change)="uploadCover($event.target.files,1,0)">
+        <input id="book-cover" class="upload" type="file" (change)="uploadCover($event.target.files,1,0)">
         <img class="icon" src="../../assets/common/common-upload.png" *ngIf="!operatBook.cover"
           (click)="clickUpload(1)">
       </div>
@@ -81,8 +80,7 @@
           <span>请选择书页图片:</span>
           <div class="upload-box">
             <img id="page-cover" *ngIf="page.cover" [src]="page.cover" class="avatar">
-            <input id="page-cover" class="upload" type="file"
-              (change)="uploadCover($event.target.files,2,i)">
+            <input id="page-cover" class="upload" type="file" (change)="uploadCover($event.target.files,2,i)">
           </div>
         </div>
         <div *ngIf="page.frames.length<10">
@@ -92,11 +90,11 @@
           <div class="title">第{{f+1}}个框</div>
           <img class="delete" src="../../assets/common/common-delete.png" (click)="deleteFrame(i,f)">
           <div class="resource-box">
-            <span>请选择框图对应资源文件:</span>
+            <p>此框选取坐标为:{{getPositionDetail(frame.position)}}</p>
+            <p>请选择框图对应资源文件:</p>
             <div class="upload-box">
               <div *ngIf="frame.resourceUrl" class="resource" style="margin-top: 60px;">已上传资源</div>
-              <input id="frame-resource" class="upload" type="file"
-                (change)="uploadResource($event.target.files,i,f)">
+              <input id="frame-resource" class="upload" type="file" (change)="uploadResource($event.target.files,i,f)">
             </div>
           </div>
         </div>
@@ -117,4 +115,23 @@
       </div>
     </div>
   </el-dialog>
+
+  <!-- 画布截取 -->
+  <div class="frame-dialog" [ngStyle]="{'display': isShowFrame ? 'block' : 'none' }">
+    <div class="bg"></div>
+    <div class="frame-main">
+      <div class="frame-box" [ngStyle]="{'width': frameWidth, 'height': frameHeight }">
+        <img class="image" width="{{canvasWidth}}" height="{{canvasHeight}}"
+          [src]="readySrc">
+        <canvas id="canvas" width="{{canvasWidth}}" height="{{canvasHeight}}"></canvas>
+      </div>
+      <div class="tip">当前选取坐标为:{{currentStartX}},{{currentStartY}}和{{currentEndX}},{{currentEndY}}</div>
+      <div class="button-box">
+        <el-button (click)="frameCancel()">取消</el-button>
+        <el-button type="primary" (click)="frameReset()" style="margin-left: 24px;">重置</el-button>
+        <el-button type="primary" (click)="frameSure()" style="margin-left: 24px;">确定</el-button>
+      </div>
+    </div>
+  </div>
+
 </div>
