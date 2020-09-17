@@ -28,6 +28,9 @@ export class QuestionComponent implements OnInit {
   deleteTip = false
   deleteIndex = 0
 
+  //loading相关
+  loadingStatus = false
+
   //模块参数
   modelIndex = 1
   pageIndex = 1
@@ -74,7 +77,6 @@ export class QuestionComponent implements OnInit {
 
   getUserInfo() {
     this.userInfo = this.messageService.getUserInfo()
-    this.userInfo.id = 3
   }
 
   initCOSUploadConfig() {
@@ -294,7 +296,7 @@ export class QuestionComponent implements OnInit {
     } else {
       this.addQuestion(userId)
     }
-
+    this.loadingStatus = true
     return
   }
 
@@ -308,6 +310,7 @@ export class QuestionComponent implements OnInit {
       } else {
         this.message['error'](response.F_responseMsg)
       }
+      this.loadingStatus = false
     });
   }
 
@@ -321,6 +324,7 @@ export class QuestionComponent implements OnInit {
       } else {
         this.message['error'](response.F_responseMsg)
       }
+      this.loadingStatus = false
     });
   }
 
@@ -336,8 +340,8 @@ export class QuestionComponent implements OnInit {
       var imgHeight = img.height
 
       if (imgWidth > 1000 || imgHeight > 1000) {
-        imgWidth = imgWidth / 2
-        imgHeight = imgHeight / 2
+        imgWidth = imgWidth / 3
+        imgHeight = imgHeight / 3
       }
 
       that.frameWidth = imgWidth + "px"

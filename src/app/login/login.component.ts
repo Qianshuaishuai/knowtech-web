@@ -82,7 +82,7 @@ export class LoginComponent implements OnInit {
 
   checkIsLogin() {
     const phone = this.messageService.getPhoneMessage()
- 
+
     if (phone) {
       this.router.navigate([`../user/`], { relativeTo: this.route });
     }
@@ -144,6 +144,7 @@ export class LoginComponent implements OnInit {
         this.message['success']("注册成功")
         this.messageService.setLoginMessage(true)
         this.messageService.setPhoneMessage(this.registerPhone)
+        this.messageService.setUserInfo(response.F_data)
         this.router.navigate([`../user/`], { relativeTo: this.route });
       } else {
         this.message['error'](response.F_responseMsg)
@@ -233,5 +234,10 @@ export class LoginComponent implements OnInit {
 
   closeLoading() {
     this.loading = false
+  }
+
+  //微信登录
+  wechatLogin(){
+    this.message['warning']("暂未开通!")
   }
 }

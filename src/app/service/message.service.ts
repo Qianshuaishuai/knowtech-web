@@ -12,6 +12,7 @@ export class MessageService {
     private userInfo = new UserInfo
 
     promptMessageSubject: Subject<string> = new Subject();
+    userInfoMessageSubject: Subject<UserInfo> = new Subject();
 
     sendPromptMessage(message: string) {
         this.promptMessageSubject.next(message);
@@ -29,12 +30,12 @@ export class MessageService {
         return this.isLogin;
     }
 
-    setUserInfo(userInfo: UserInfo): void {
-        this.userInfo = userInfo
+    setUserInfo(userInfo: UserInfo) {
+        this.storageService.write('userInfo', userInfo);
     }
 
     getUserInfo(): UserInfo {
-        return this.userInfo;
+        return this.storageService.read<UserInfo>('userInfo');
     }
 
     setPhoneMessage(phone: string): void {

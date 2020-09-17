@@ -28,6 +28,9 @@ export class BookComponent implements OnInit {
   deleteTip = false
   deleteIndex = 0
 
+  //loading相关
+  loadingStatus = false
+
   //模块参数
   modelIndex = 1
   pageIndex = 1
@@ -378,7 +381,7 @@ export class BookComponent implements OnInit {
     } else {
       this.addBook(userId)
     }
-
+    this.loadingStatus = true
     return
   }
 
@@ -392,6 +395,7 @@ export class BookComponent implements OnInit {
       } else {
         this.message['error'](response.F_responseMsg)
       }
+      this.loadingStatus = false
     });
   }
 
@@ -405,6 +409,7 @@ export class BookComponent implements OnInit {
       } else {
         this.message['error'](response.F_responseMsg)
       }
+      this.loadingStatus = false
     });
   }
 
@@ -421,8 +426,8 @@ export class BookComponent implements OnInit {
       var imgHeight = img.height
 
       if (imgWidth > 1000 || imgHeight > 1000) {
-        imgWidth = imgWidth / 2
-        imgHeight = imgHeight / 2
+        imgWidth = imgWidth / 3
+        imgHeight = imgHeight / 3
       }
 
       that.frameWidth = imgWidth + "px"

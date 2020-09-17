@@ -70,7 +70,7 @@
       </div>
     </div>
 
-    <el-button type="primary" size="large" (click)="submit(scope)" style="margin-top:24px;margin-bottom: 100px">提交
+    <el-button type="primary" size="large" (click)="submit(scope)" style="margin-top:24px;margin-bottom: 200px">提交
     </el-button>
   </div>
 
@@ -100,5 +100,9 @@
         <el-button type="primary" (click)="frameSure()" style="margin-left: 24px;">确定</el-button>
       </div>
     </div>
+  </div>
+
+  <!-- loading -->
+  <div [el-loading]="loadingStatus" [full-screen]="true" [text]="'提交中..'" [custom-class]="'loading'">
   </div>
 </div>

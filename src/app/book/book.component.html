@@ -101,7 +101,7 @@
       </div>
     </div>
 
-    <el-button type="primary" size="large" (click)="submit(scope)" style="margin-top:24px;margin-bottom: 100px">提交
+    <el-button type="primary" size="large" (click)="submit(scope)" style="margin-top:24px;margin-bottom: 200px">提交
     </el-button>
   </div>
 
@@ -121,8 +121,7 @@
     <div class="bg"></div>
     <div class="frame-main">
       <div class="frame-box" [ngStyle]="{'width': frameWidth, 'height': frameHeight }">
-        <img class="image" width="{{canvasWidth}}" height="{{canvasHeight}}"
-          [src]="readySrc">
+        <img class="image" width="{{canvasWidth}}" height="{{canvasHeight}}" [src]="readySrc">
         <canvas id="canvas" width="{{canvasWidth}}" height="{{canvasHeight}}"></canvas>
       </div>
       <div class="tip">当前选取坐标为:{{currentStartX}},{{currentStartY}}和{{currentEndX}},{{currentEndY}}</div>
@@ -133,5 +132,7 @@
       </div>
     </div>
   </div>
-
+  <!-- loading -->
+  <div [el-loading]="loadingStatus" [full-screen]="true" [text]="'提交中..'" [custom-class]="'loading'">
+  </div>
 </div>

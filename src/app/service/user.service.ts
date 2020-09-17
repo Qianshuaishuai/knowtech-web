@@ -45,13 +45,13 @@ export class UserService {
    * 注册
    *
    */
-  register(phone: string, password: string,code: string): Observable<CommonResponse> {
+  register(phone: string, password: string,code: string): Observable<UserResponse> {
     const params = new HttpParams()
       .set('phone', phone)
       .set('password', password)
       .set('code', code)
 
-    return this.httpClientService.post<CommonResponse>('v1/user/register', null, 0, params);
+    return this.httpClientService.post<UserResponse>('v1/user/register', null, 0, params);
   }
 
   /**

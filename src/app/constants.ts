@@ -5,9 +5,9 @@ import {
  *   Api地址
  */
 // export const BASE_URL = environment.production ? 'http://api.360eliteclub.com/' : 'http://api.360eliteclub.com/';
-// export const BASE_URL = environment.production ? 'http://apiq.qimsj.com/' : 'http://apiq.qimsj.com/';
+// export const BASE_URL = environment.production ? 'https://api.qinzcloud.com/' : 'https://api.qinzcloud.com/';
 export const BASE_URL = environment.production ? 'http://localhost:6490/' : 'http://localhost:6490/';
-export const BASE_URL_BEIKE = environment.production ? 'https://api.qimsj.com/' : 'https://api.qimsj.com/';
+export const BASE_URL_BEIKE = environment.production ? 'https://api.qinzcloud.com/' : 'https://api.qinzcloud.com/';
 
 //网络请求状态码
 export const OK_RESPONSE_NUMBER = 10000;
