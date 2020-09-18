@@ -240,4 +240,14 @@ export class LoginComponent implements OnInit {
   wechatLogin(){
     this.message['warning']("暂未开通!")
   }
+
+  //跳转注册界面
+  goToRegister(){
+    this.router.navigate([`../register/1`], { relativeTo: this.route });
+  }
+
+   //跳转忘记密码界面
+   goToForget(){
+    this.router.navigate([`../register/2`], { relativeTo: this.route });
+   }
 }

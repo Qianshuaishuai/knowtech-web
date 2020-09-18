@@ -28,6 +28,7 @@ import { ElModule } from 'element-angular'
 import 'element-angular/theme/index.css';
 import { UserComponent } from './user/user.component';
 import { BookComponent } from './book/book.component';
+import { RegisterComponent } from './register/register.component';
 
 
 @NgModule({
@@ -38,6 +39,7 @@ import { BookComponent } from './book/book.component';
     UserComponent,
     BookComponent,
     QuestionComponent,
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,
