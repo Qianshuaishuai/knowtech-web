@@ -110,7 +110,7 @@ export class LoginComponent implements OnInit {
         this.message['success']("登录成功")
         this.router.navigate([`../user/`], { relativeTo: this.route });
         this.messageService.setLoginMessage(true)
-        this.messageService.setPhoneMessage(this.loginPhone)
+        this.messageService.setPhoneMessage(response.F_data.phone)
         this.messageService.setUserInfo(response.F_data)
       } else {
         this.message['error'](response.F_responseMsg)
@@ -139,17 +139,17 @@ export class LoginComponent implements OnInit {
       return
     }
 
-    this.userSubscription = this.userService.register(this.registerPhone, this.registerPassword, this.registerCodeStr).subscribe(response => {
-      if (response.F_responseNo == OK_RESPONSE_NUMBER) {
-        this.message['success']("注册成功")
-        this.messageService.setLoginMessage(true)
-        this.messageService.setPhoneMessage(this.registerPhone)
-        this.messageService.setUserInfo(response.F_data)
-        this.router.navigate([`../user/`], { relativeTo: this.route });
-      } else {
-        this.message['error'](response.F_responseMsg)
-      }
-    });
+    // this.userSubscription = this.userService.register(this.registerPhone, this.registerPassword, this.registerCodeStr).subscribe(response => {
+    //   if (response.F_responseNo == OK_RESPONSE_NUMBER) {
+    //     this.message['success']("注册成功")
+    //     this.messageService.setLoginMessage(true)
+    //     this.messageService.setPhoneMessage(this.registerPhone)
+    //     this.messageService.setUserInfo(response.F_data)
+    //     this.router.navigate([`../user/`], { relativeTo: this.route });
+    //   } else {
+    //     this.message['error'](response.F_responseMsg)
+    //   }
+    // });
   }
 
   //忘记密码

@@ -1,110 +1,45 @@
 <div class="page" style="height: 100vh;">
-  <div class="operation-box">
-    <div *ngIf="modelIndex == 1">
-      <input class="search" type="text" [(ngModel)]="searchStr" placeholder="请输入要搜索的名称">
-      <el-button type="primary" (click)="search()">搜索</el-button>
-      <el-button type="primary" (click)="addNewBook()">添加新书本</el-button>
-    </div>
-
-    <div *ngIf="modelIndex == 2">
-      <el-button type="primary" (click)="backBookTable()">返回上一级</el-button>
-    </div>
-  </div>
-  <!-- 书本表格 -->
-  <div class="table" *ngIf="modelIndex == 1">
-    <el-table class="table" [model]="bookList">
-      <el-table-column model-key="name" label="书本名称" width="120">
-      </el-table-column>
-      <el-table-column model-key="pubDate" label="出版日期" width="120">
-      </el-table-column>
-      <el-table-column model-key="press" label="出版社" width="240">
-      </el-table-column>
-      <el-table-column model-key="cover" label="封面图" width="240">
-      </el-table-column>
-      <el-table-column model-key="imageAi" label="是否采用AI" width="120">
-      </el-table-column>
-      <el-table-column model-key="createTimeStr" label="修改时间" width="240">
-      </el-table-column>
-      <el-table-column label="操作" width="180">
-        <ng-template #slot let-scope="scope">
-          <el-button type="text" size="small" (click)="edit(scope)">编辑</el-button>
-          <el-button type="text" size="small" (click)="delete(scope)">删除</el-button>
-        </ng-template>
-      </el-table-column>
-    </el-table>
-    <el-pagination class="pagination" [model]="pageIndex" (modelChange)="changePage($event)" [total]="totalCount"
-      [page-size]="20" [layout]="['prev', 'pager', 'next', 'total']">
-    </el-pagination>
-  </div>
-  <!-- 添加新书本 -->
-  <div class="add-box" *ngIf="modelIndex == 2">
-    <div class="title">书本基本信息</div>
+  <div class="search-box">
     <div class="input-box">
-      <div class="tip">书本名称</div>
-      <input class="input" type="text" placeholder="请输入书本名称" [(ngModel)]="operatBook.name">
+      <input class="search" type="text" [(ngModel)]="searchStr" placeholder="请输入要搜索的名称">
+      <img class="icon" src="../../assets/user/search.png" (click)="search()">
     </div>
-    <div class="input-box" style="margin-bottom: 30px;">
-      <div class="tip">出版社</div>
-      <input class="input" type="text" placeholder="请输入出版社" [(ngModel)]="operatBook.press">
+    <div class="add-box" (click)="addNewBook()">
+      <img class="add" src="../../assets/user/add.png">
+      <div class="tip">添加新书本</div>
     </div>
-    <div class="hon-box">
-      <el-select [model]="operatBook.grade" size="mini" (modelChange)="changeGrade($event)">
-        <el-option *ngFor="let item of grades" [label]="item.name" [value]="item.value">
-        </el-option>
-      </el-select>
-      <el-checkbox [model]="operatBook.imageAi" (modelChange)="changeAi($event)">是否采用AI图像算法</el-checkbox>
-    </div>
-
-    <el-date-picker [model]="operatBook.pubDate" (modelChange)="selectDate($event)" (clear-click)="clearDate($event)">
-    </el-date-picker>
-
-    <div class="cover-box">
-      <span>请选择封面:</span>
-      <div class="upload-box">
-        <img (click)="clickUpload(1)" *ngIf="operatBook.cover" [src]="operatBook.cover" class="avatar">
-        <input id="book-cover" class="upload" type="file" (change)="uploadCover($event.target.files,1,0)">
-        <img class="icon" src="../../assets/common/common-upload.png" *ngIf="!operatBook.cover"
-          (click)="clickUpload(1)">
-      </div>
-    </div>
-
-    <div class="title">书页</div>
-    <div class="page-box">
-      <div>
-        <el-button type="primary" (click)="addNewPage()">添加新书页</el-button>
-      </div>
-      <div class="page" *ngFor="let page of operatBook.pages;index as i">
-        <div class="title">第{{i+1}}页</div>
-        <img class="delete" src="../../assets/common/common-delete.png" (click)="deletePage(i)">
-        <div class="cover-box">
-          <span>请选择书页图片:</span>
-          <div class="upload-box">
-            <img id="page-cover" *ngIf="page.cover" [src]="page.cover" class="avatar">
-            <input id="page-cover" class="upload" type="file" (change)="uploadCover($event.target.files,2,i)">
-          </div>
-        </div>
-        <div *ngIf="page.frames.length<10">
-          <el-button type="primary" (click)="addNewFrame(i)">增加新截图框</el-button>
-        </div>
-        <div class="frame" *ngFor="let frame of page.frames;index as f">
-          <div class="title">第{{f+1}}个框</div>
-          <img class="delete" src="../../assets/common/common-delete.png" (click)="deleteFrame(i,f)">
-          <div class="resource-box">
-            <p>此框选取坐标为:{{getPositionDetail(frame.position)}}</p>
-            <p>请选择框图对应资源文件:</p>
-            <div class="upload-box">
-              <div *ngIf="frame.resourceUrl" class="resource" style="margin-top: 60px;">已上传资源</div>
-              <input id="frame-resource" class="upload" type="file" (change)="uploadResource($event.target.files,i,f)">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <el-button type="primary" size="large" (click)="submit(scope)" style="margin-top:24px;margin-bottom: 200px">提交
-    </el-button>
   </div>
 
+  <div class="column">
+    <div class="tip" style="margin-left: 0px;">书本名称</div>
+    <div class="tip">出版日期</div>
+    <div class="tip">出版社</div>
+    <div class="tip">封面图</div>
+    <div class="tip">科目</div>
+    <div class="tip">修改时间</div>
+    <div class="tip">操作</div>
+  </div>
+
+  <div class="list">
+    <div class="item" *ngFor="let book of bookList">
+      <div class="name">{{book.name}}</div>
+      <div class="pubdate">{{book.pubDate}}</div>
+      <div class="press">{{book.press}}</div>
+      <div class="cover-box">
+        <img class="cover" src="{{book.cover}}">
+      </div>
+      <div class="grade">{{getSubjectName(book.subject)}}</div>
+      <div class="time">{{book.createTimeStr}}</div>
+      <div class="button">
+        <div class="edit" (click)="edit(book)">编辑</div>
+        <div class="delete" (click)="delete(book)">删除</div>
+      </div>
+    </div>
+  </div>
+
+  <el-pagination class="pagination" [model]="pageIndex" (modelChange)="changePage($event)" [total]="totalCount"
+    [page-size]="20" [layout]="['prev', 'pager', 'next', 'total']">
+  </el-pagination>
   <!-- 此处dialog暂用样式，后期考虑封装 -->
   <el-dialog [title]="'提示'" [(visible)]="deleteTip" [center]="true" width="25%" top="36%">
     <div class="content" style="display: flex;flex-direction:column;align-items: center;">
@@ -115,24 +50,130 @@
       </div>
     </div>
   </el-dialog>
-
   <!-- 画布截取 -->
   <div class="frame-dialog" [ngStyle]="{'display': isShowFrame ? 'block' : 'none' }">
     <div class="bg"></div>
     <div class="frame-main">
-      <div class="frame-box" [ngStyle]="{'width': frameWidth, 'height': frameHeight }">
-        <img class="image" width="{{canvasWidth}}" height="{{canvasHeight}}" [src]="readySrc">
-        <canvas id="canvas" width="{{canvasWidth}}" height="{{canvasHeight}}"></canvas>
-      </div>
-      <div class="tip">当前选取坐标为:{{currentStartX}},{{currentStartY}}和{{currentEndX}},{{currentEndY}}</div>
-      <div class="button-box">
-        <el-button (click)="frameCancel()">取消</el-button>
-        <el-button type="primary" (click)="frameReset()" style="margin-left: 24px;">重置</el-button>
-        <el-button type="primary" (click)="frameSure()" style="margin-left: 24px;">确定</el-button>
+      <input id="frame-resource" class="upload" type="file" (change)="uploadResource($event.target.files)"
+        style="display: none;">
+      <div class="content-box">
+        <div class="frame-box" [ngStyle]="{'width': frameWidth, 'height': frameHeight }">
+          <img class="image" width="{{canvasWidth}}" height="{{canvasHeight}}" [src]="readySrc">
+          <canvas id="canvas" width="{{canvasWidth}}" height="{{canvasHeight}}"></canvas>
+        </div>
+        <!-- <div class="tip">当前选取坐标为:{{currentStartX}},{{currentStartY}}和{{currentEndX}},{{currentEndY}}</div> -->
+        <div class="diviler"></div>
+        <div class="button-box">
+          <div class="cancel" (click)="frameCancel()">取消</div>
+          <div class="reset" (click)="frameReset()">重置</div>
+          <div class="sure" (click)="frameNewSure()">确定</div>
+        </div>
       </div>
     </div>
   </div>
-  <!-- loading -->
-  <div [el-loading]="loadingStatus" [full-screen]="true" [text]="'提交中..'" [custom-class]="'loading'">
+  <!-- 添加框 -->
+  <div class="book-add-box" *ngIf="isEditBook">
+    <div class="background">
+      <div class="content">
+        <div class="title">书本基本信息</div>
+        <div class="box">
+          <div class="input-box">
+            <div class="tip">书本名称</div>
+            <input class="input" type="text" placeholder="请输入书本名称" [(ngModel)]="operatBook.name">
+          </div>
+          <div class="input-box">
+            <div class="tip">出版社</div>
+            <input class="input" type="text" placeholder="请输入出版社" [(ngModel)]="operatBook.press">
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="input-box">
+            <div class="tip">年级</div>
+            <el-select [model]="operatBook.grade" style="width: 332px;height: 40px;" size="large"
+              (modelChange)="changeGrade($event)">
+              <el-option *ngFor="let item of grades" [label]="item.name" [value]="item.value">
+              </el-option>
+            </el-select>
+          </div>
+          <div class="input-box">
+            <div class="tip">出版日期</div>
+            <el-date-picker [model]="operatBook.pubDate" style="width: 332px;height: 40px;" [size]="large"
+              (modelChange)="selectDate($event)" (clear-click)="clearDate($event)">
+            </el-date-picker>
+          </div>
+        </div>
+
+        <div class="box" style="align-items:flex-start;">
+          <div class="input-box" style="align-items:flex-start;">
+            <div class="tip">科目</div>
+            <div class="subject-box" *ngIf="subjects.length > 0">
+              <div class="item" *ngFor="let subject of subjects;index as s">
+                <div class="item-content" (click)="selectSubject(s)"
+                  [ngStyle]="{'border': subject.status ? '1px solid #FF6F00' : '1px solid #F1EEEE' , 'color': subject.status ? '#FF6F00' : '#666666'}">
+                  {{subject.value}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="input-box" style="align-items:flex-start;">
+            <div class="tip">图书性质</div>
+            <el-radio-group v-model="operatBook.imageAi" style="width: 332px;height: 40px;">
+              <el-radio :label="0">文字为主</el-radio>
+              <el-radio :label="1">图像为主</el-radio>
+            </el-radio-group>
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="input-box" style="align-items:flex-start;">
+            <div class="tip" style="margin-top: 24px;">请选择封面</div>
+            <div class="upload-box">
+              <img (click)="clickUpload(1)" *ngIf="operatBook.cover" [src]="operatBook.cover" class="avatar">
+              <input id="book-cover" class="upload" type="file" (change)="uploadCover($event.target.files,1,0)">
+              <img class="icon" src="../../assets/common/common-upload.png" *ngIf="!operatBook.cover"
+                (click)="clickUpload(1)">
+            </div>
+          </div>
+        </div>
+
+        <div class="page-title">
+          <div class="tip">书页</div>
+          <div class="add-box" (click)="addNewPage()">
+            <img class="add" src="../../assets/user/blue-add.png">
+            <div class="tip">添加新书页</div>
+          </div>
+        </div>
+
+        <div class="page-box">
+          <div class="item" *ngFor="let page of operatBook.pages;index as i">
+            <div class="operation">
+              <div class="number">
+                <div class="tip">第</div>
+                <div class="count">{{i+1}}</div>
+                <div class="tip">页</div>
+              </div>
+
+              <img class="delete" src="../../assets/user/delete.png" (click)="deletePage(i)">
+            </div>
+
+            <div class="upload-box">
+              <img id="page-cover" *ngIf="page.cover" [src]="page.cover" class="avatar">
+              <input id="page-cover" class="upload" type="file" (change)="uploadCover($event.target.files,2,i)">
+            </div>
+
+            <div class="add-frame" (click)="addNewFrame(i)">增加新编辑框</div>
+          </div>
+        </div>
+
+        <div class="diviler"></div>
+
+        <div class="button-box">
+          <div class="cancel" (click)="cancelEditBook()">取消</div>
+          <div class="sure" (click)="submit()">保存</div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+
+  <div [el-loading]="loadingStatus" [full-screen]="true" [text]="'提交中..'" [custom-class]="'loading'">

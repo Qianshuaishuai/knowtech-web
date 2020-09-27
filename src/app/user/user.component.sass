@@ -1,20 +1,72 @@
 .page
     overflow: hidden
-    .user-box
-        position: fixed
-        right: 48px
-        top: 0
+    .top
+        width: 100%
+        height: 90px
+        background: #333333
         display: flex
         flex-direction: row
-        height: 60px
         align-items: center
-        .user-tip
-            font-size: 16px
-            color: #ffffff
-        .user-logout
-            font-size: 16px
-            color: #ffffff
-            margin-left: 24px
-            text-decoration: underline
+        justify-content: space-between
+        .logo
+            margin-left: 60px
+            width: 150px
+            height: 54px
+    .menu
+        display: flex
+        flex-direction: row
+        align-items: center
+        .item
+            display: flex
+            flex-direction: row
+            align-items: center
             cursor: pointer
-        
+            opacity: 1
+            border-radius: 5px
+            padding: 12px 18px
+            background: #333333
+            .icon
+                width: 21px
+                height: 21px
+            .tip
+                font-size: 20px
+                font-family: Microsoft YaHei
+                color: #FFFFFF
+                margin-left: 12px
+        .item-select
+            display: flex
+            flex-direction: row
+            align-items: center
+            cursor: pointer
+            background: #FF6F00
+            opacity: 1
+            border-radius: 5px
+            padding: 12px 18px
+            .icon
+                width: 21px
+                height: 21px
+            .tip
+                font-size: 20px
+                font-family: Microsoft YaHei
+                color: #FFFFFF
+                margin-left: 12px
+    .user-box
+        display: flex
+        flex-direction: row
+        align-items: center
+        margin-right: 32px
+        .icon
+            width: 25px
+            height: 25px
+        .user-tip
+            font-size: 20px
+            font-family: Microsoft YaHei
+            line-height: 20px
+            color: #C6C6C6
+            margin-left: 12px
+            cursor: pointer
+        .back
+            margin-left: 28px
+            width: 20px
+            height: 16px
+            cursor: pointer

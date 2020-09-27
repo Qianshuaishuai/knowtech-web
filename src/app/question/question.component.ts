@@ -6,11 +6,11 @@ import { QuestionService } from '../service/question.service'
 import Random from '../util/random'
 import { ImageCropperComponent, CropperSettings } from 'ng2-img-cropper';
 import {
-  Subscription,
+  Subscription
 } from 'rxjs';
 
 import {
-  OK_RESPONSE_NUMBER,
+  OK_RESPONSE_NUMBER,Subjects
 } from '../../app/constants'
 import {
   UserInfo
@@ -64,6 +64,28 @@ export class QuestionComponent implements OnInit {
   rectDatas = new Array()
   readySrc = ""
 
+   //新增画布逻辑相关
+   subjects = Subjects
+   isEditQuestion = false
+   sureImage = new Image()
+   deleteImage = new Image()
+   uploadImage = new Image()
+   currentSureImageStartX = 0
+   currentSureImageStartY = 0
+   currentSureImageEndX = 0
+   currentSureImageEndY = 0
+   isSureStatus = false
+   currentFrameIndex = 0
+ 
+   cacheFrameX1 = 0
+   cacheFrameX2 = 0
+   cacheFrameY1 = 0
+   cacheFrameY2 = 0
+
+   scale = 1
+
+   frameIndex = 0
+
   constructor(private message: ElMessageService,
     private questionService: QuestionService,
     private messageService: MessageService, ) {
@@ -73,6 +95,16 @@ export class QuestionComponent implements OnInit {
     this.initCOSUploadConfig()
     this.getUserInfo()
     this.getQuestionList()
+    this.initCanvasImage()
+    this.drawCanvas()
+  }
+
+  initCanvasImage() {
+    this.sureImage.src = "../../assets/user/sure.png"
+    this.deleteImage.src = "../../assets/user/delete-frame.png"
+    this.uploadImage.src = "../../assets/user/upload.png"
+    this.canvas = document.getElementById('canvas');
+    this.canvasPen = this.canvas.getContext("2d");
   }
 
   getUserInfo() {
@@ -104,13 +136,13 @@ export class QuestionComponent implements OnInit {
 
   //编辑
   edit(scope) {
-    const questionId = scope.rowData.id
+    const questionId = scope.id
     this.getQuestionDetail(questionId)
   }
 
   //删除
   delete(scope) {
-    const questionId = scope.rowData.id
+    const questionId = scope.id
     this.deleteIndex = questionId
     this.deleteTip = true
   }
@@ -141,7 +173,12 @@ export class QuestionComponent implements OnInit {
     this.questionSubscription = this.questionService.getDetail(String(questionId)).subscribe(response => {
       if (response.F_responseNo == OK_RESPONSE_NUMBER) {
         this.operatQuestion = response.F_data
-        this.modelIndex = 2
+        this.isEditQuestion = true
+        this.subjects.forEach(subject => {
+          if(subject.id == this.operatQuestion.subject){
+            subject.status = true
+          }
+        });
       } else {
       }
     });
@@ -160,8 +197,8 @@ export class QuestionComponent implements OnInit {
 
   //添加新题目
   addNewQuestion() {
-    this.modelIndex = 2
     this.operatQuestion = new Question()
+    this.isEditQuestion = true
   }
 
   //返回上一级
@@ -170,7 +207,7 @@ export class QuestionComponent implements OnInit {
   }
 
   //上传框图资源
-  uploadResource(event, frameIndex) {
+  uploadResource(event) {
     const keyName = new Date().getTime() + new Random().randomString(8);
     if (event) {
       var that = this
@@ -189,9 +226,29 @@ export class QuestionComponent implements OnInit {
         that.message['success']('上传成功')
         var resourceUrl = "https://" + data.Location
 
-        that.operatQuestion.frames[frameIndex].resourceUrl = resourceUrl
+        that.operatQuestion.frames[that.frameIndex].resourceUrl = resourceUrl
+        that.drawCanvasFrame()
       });
     }
+  }
+
+  getSubjectName(id){
+    var subjectName = ""
+    this.subjects.forEach(subject => {
+      if(id == subject.id){
+        subjectName = subject.value
+      }
+    });
+
+    if(subjectName == ""){
+      subjectName = "未知科目"
+    }
+    return subjectName
+  }
+
+
+  cancelEditQuestion() {
+    this.isEditQuestion = false
   }
 
   //选择图片后监听 
@@ -241,7 +298,7 @@ export class QuestionComponent implements OnInit {
   //增加新截图框
   addNewFrame(index) {
     if (!this.operatQuestion.image) {
-      this.message['error']('请给当前页面先选好图片')
+      this.message['error']('请给当前题目先选好图片')
       return
     }
 
@@ -267,6 +324,19 @@ export class QuestionComponent implements OnInit {
       return false
     }
 
+    var subjectIsSelect = false
+    this.subjects.forEach(subject => {
+      if (subject.status) {
+        subjectIsSelect = true
+        this.operatQuestion.subject = subject.id
+      }
+    });
+
+    if (!subjectIsSelect) {
+      this.message['warning']("请先选择科目")
+      return false
+    }
+
     for(var f=0;f<this.operatQuestion.frames.length;f++){
       var frame = this.operatQuestion.frames[f]
       if (!frame.resourceUrl) {
@@ -277,6 +347,20 @@ export class QuestionComponent implements OnInit {
 
     return true
   }
+
+  selectSubject(index) {
+    this.subjects.forEach(element => {
+      element.status = false
+    });
+    this.subjects[index].status = true
+  }
+
+
+  //改变年级
+  changeGrade(event) {
+    this.operatQuestion.grade = event
+  }
+
 
   //提交数据
   submit() {
@@ -304,7 +388,8 @@ export class QuestionComponent implements OnInit {
     this.questionSubscription = this.questionService.addQuestion(String(userId), JSON.stringify(this.operatQuestion)).subscribe(response => {
       if (response.F_responseNo == OK_RESPONSE_NUMBER) {
         this.message['success']("新建成功")
-        this.modelIndex = 1
+        this.isEditQuestion = false
+        this.isShowFrame = false
         this.operatQuestion = new Question()
         this.getQuestionList()
       } else {
@@ -318,7 +403,8 @@ export class QuestionComponent implements OnInit {
     this.questionSubscription = this.questionService.editQuestion(String(userId), String(questionId), JSON.stringify(this.operatQuestion)).subscribe(response => {
       if (response.F_responseNo == OK_RESPONSE_NUMBER) {
         this.message['success']("更改成功")
-        this.modelIndex = 1
+        this.isEditQuestion = false
+        this.isShowFrame = false
         this.operatQuestion = new Question()
         this.getQuestionList()
       } else {
@@ -348,19 +434,29 @@ export class QuestionComponent implements OnInit {
       that.frameHeight = imgHeight + "px"
       that.canvasWidth = imgWidth
       that.canvasHeight = imgHeight
+
+      that.initCanvasFrame()
     }
 
     // img.onload = function () {
     //   that.canvasPen.drawImage(img,0,0)
     // }
 
-    //画布动作监听
-    this.canvas.onmousedown = (e) => {
+     //画布动作监听
+     this.canvas.onmousedown = (e) => {
       e.preventDefault();
-      that.isCanvasMouseDown = true
-      that.currentStartX = e.offsetX
-      that.currentStartY = e.offsetY
-      console.log(e)
+      if (this.judgeIsInUpload(e.offsetX, e.offsetY)) {
+        return
+      }
+      if (this.judgeIsInDelete(e.offsetX, e.offsetY)) {
+        return
+      }
+      this.judgeIsInSure(e.offsetX, e.offsetY)
+      if (!this.isSureStatus) {
+        that.isCanvasMouseDown = true
+        that.currentStartX = e.offsetX
+        that.currentStartY = e.offsetY
+      }
     }
     //鼠标按下，松开，移动，离开事件执行
     this.canvas.onmouseup = (e) => {
@@ -375,21 +471,28 @@ export class QuestionComponent implements OnInit {
     }
     this.canvas.onmousemove = (e) => {
       e.preventDefault();
-      if (that.isCanvasMouseDown) {
+      if (that.isCanvasMouseDown && !that.isSureStatus) {
         that.currentEndX = e.offsetX
         that.currentEndY = e.offsetY
         // that.drawCanvasFrame(that.canvasPen)
-        that.drawCanvasFrame(that.canvasPen)
+        that.drawCanvasFrame()
       }
     }
   }
 
+  initCanvasFrame(){
+    const ctx = this.canvas.getContext("2d");
 
-  drawCanvasFrame(ctx) {
     const startX = this.currentStartX
     const startY = this.currentStartY
     const endX = this.currentEndX
     const endY = this.currentEndY
+
+    this.cacheFrameX1 = this.currentStartX
+    this.cacheFrameY1 = this.currentStartY
+    this.cacheFrameX2 = this.currentEndX
+    this.cacheFrameY2 = this.currentEndY
+
     ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
     ctx.strokeStyle = "red"
     ctx.strokeWidth = 1
@@ -398,19 +501,177 @@ export class QuestionComponent implements OnInit {
     var rectWidth = Math.abs(startX - endX)
     var rectHeight = Math.abs(startY - endY)
 
+    //先绘制先前的
+    if (this.operatQuestion) {
+      this.operatQuestion.frames.forEach(frame => {
+        var position = JSON.parse(frame.position)
+        var x1 = position.x1
+        var y1 = position.y1
+        var x2 = position.x2
+        var y2 = position.y2
+        var rectWidth1 = Math.abs(x1 - x2)
+        var rectHeight1 = Math.abs(y1 - y2)
+        
+        ctx.strokeRect(x1, y1, rectWidth1, rectHeight1);
+        ctx.drawImage(this.deleteImage, x1 + rectWidth1 - 16, y1 - 16)
+
+        if (frame.resourceUrl && frame.resourceUrl != "") {
+          ctx.font = 'bold 24px Arial'
+          ctx.fillStyle = "#1883D3";
+
+          ctx.fillText("已上传资源", x1 + rectWidth1 / 2 - 64, y1 + rectHeight1 / 2 + 8);
+        } else {
+          ctx.drawImage(this.uploadImage, x1 + rectWidth1 / 2 - 32, y1 + rectHeight1 / 2 - 32)
+        }
+
+      });
+    }
+
+  }
+
+  judgeIsInUpload(x, y) {
+
+    for (var i = 0; i < this.operatQuestion.frames.length; i++) {
+      var frame = this.operatQuestion.frames[i]
+      var position = JSON.parse(frame.position)
+      var x1 = position.x1
+      var y1 = position.y1
+      var x2 = position.x2
+      var y2 = position.y2
+      var rectWidth1 = Math.abs(x1 - x2)
+      var rectHeight1 = Math.abs(y1 - y2)
+
+      var uploadX1 = x1 + rectWidth1 / 2 - 32
+      var uploadY1 = y1 + rectHeight1 / 2 - 32
+      var uploadX2 = x1 + rectWidth1 / 2 + 32
+      var uploadY2 = y1 + rectHeight1 / 2 + 32
+      if (x <= uploadX2 && x >= uploadX1 && y <= uploadY2 && y >= uploadY1) {
+        if (!(frame.resourceUrl && frame.resourceUrl != "")) {
+          var id = "frame-resource"
+          document.getElementById(id).click();
+          this.frameIndex = i
+          return true
+        }
+      }
+    }
+
+    return false
+  }
+
+  judgeIsInDelete(x, y) {
+
+    for (var i = 0; i < this.operatQuestion.frames.length; i++) {
+      var frame = this.operatQuestion.frames[i]
+      var position = JSON.parse(frame.position)
+      var x1 = position.x1
+      var y1 = position.y1
+      var x2 = position.x2
+      var y2 = position.y2
+      var rectWidth1 = Math.abs(x1 - x2)
+      var rectHeight1 = Math.abs(y1 - y2)
+      var deleteX1 = x1 + rectWidth1 - 16
+      var deleteY1 = y1 - 16
+      var deleteX2 = x1 + rectWidth1 + 16
+      var deleteY2 = y1 + 16
+      if (x <= deleteX2 && x >= deleteX1 && y <= deleteY2 && y >= deleteY1) {
+        this.operatQuestion.frames.splice(i, 1)
+        this.drawCanvasFrame()
+        return true
+      }
+    }
+
+    return false
+  }
+
+  judgeIsInSure(x, y) {
+    if (x <= this.currentSureImageEndX && x >= this.currentSureImageStartX && y <= this.currentSureImageEndY && y >= this.currentSureImageStartY) {
+      this.isSureStatus = true
+      this.frameSure()
+    } else {
+      this.isSureStatus = false
+    }
+  }
+
+  drawCanvasFrame() {
+    const ctx = this.canvasPen 
+
+    const startX = this.currentStartX
+    const startY = this.currentStartY
+    const endX = this.currentEndX
+    const endY = this.currentEndY
+
+    this.cacheFrameX1 = this.currentStartX
+    this.cacheFrameY1 = this.currentStartY
+    this.cacheFrameX2 = this.currentEndX
+    this.cacheFrameY2 = this.currentEndY
+
+    ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
+    ctx.strokeStyle = "red"
+    ctx.strokeWidth = 1
+    ctx.lineWidth = 1
+
+    var rectWidth = Math.abs(startX - endX)
+    var rectHeight = Math.abs(startY - endY)
+
+    //先绘制先前的
+    if (this.operatQuestion) {
+      this.operatQuestion.frames.forEach(frame => {
+        var position = JSON.parse(frame.position)
+        var x1 = position.x1
+        var y1 = position.y1
+        var x2 = position.x2
+        var y2 = position.y2
+        var rectWidth1 = Math.abs(x1 - x2)
+        var rectHeight1 = Math.abs(y1 - y2)
+        
+        ctx.strokeRect(x1, y1, rectWidth1, rectHeight1);
+        ctx.drawImage(this.deleteImage, x1 + rectWidth1 - 16, y1 - 16)
+
+        if (frame.resourceUrl && frame.resourceUrl != "") {
+          ctx.font = 'bold 24px Arial'
+          ctx.fillStyle = "#1883D3";
+
+          ctx.fillText("已上传资源", x1 + rectWidth1 / 2 - 64, y1 + rectHeight1 / 2 + 8);
+        } else {
+          ctx.drawImage(this.uploadImage, x1 + rectWidth1 / 2 - 32, y1 + rectHeight1 / 2 - 32)
+        }
+
+      });
+    }
+
+
     if (endX >= startX) {
       if (endY >= startY) {
         ctx.strokeRect(startX, startY, rectWidth, rectHeight);
       } else {
         ctx.strokeRect(startX, startY, rectWidth, -rectHeight);
       }
+      if (!(startX == 0 && endY == 0)) {
+        ctx.drawImage(this.sureImage, startX + rectWidth - 16, startY - 16)
+
+        this.currentSureImageStartX = startX + rectWidth - 16
+        this.currentSureImageStartY = startY - 16
+        this.currentSureImageEndX = startX + rectWidth + 16
+        this.currentSureImageEndY = startY + 16
+      }
+
     } else {
       if (endY >= startY) {
         ctx.strokeRect(startX, startY, -rectWidth, rectHeight);
       } else {
         ctx.strokeRect(startX, startY, -rectWidth, -rectHeight);
       }
+
+      if (!(startX == 0 && endY == 0)) {
+        ctx.drawImage(this.sureImage, startX - rectWidth - 16, startY - 16)
+        this.currentSureImageStartX = startX - rectWidth - 16
+        this.currentSureImageStartY = startY - 16
+        this.currentSureImageEndX = startX - rectWidth + 16
+        this.currentSureImageEndY = startY + 16
+      }
+
     }
+
   }
 
   frameCancel() {
@@ -425,36 +686,48 @@ export class QuestionComponent implements OnInit {
     this.currentStartY = 0
     this.currentEndX = 0
     this.currentEndY = 0
+    this.operatQuestion.frames.splice(0, this.operatQuestion.frames.length)
+  }
+
+  frameNewSure() {
+    this.isShowFrame = false
   }
 
   frameSure() {
-    if (this.currentStartX == 0 && this.currentStartY == 0 && this.currentEndX == 0 && this.currentEndY == 0) {
-      this.message['error']("请先进行截取框图")
-      return
+    var readStartX = this.cacheFrameX1
+    var readStartY = this.cacheFrameY1
+    var readEndX = this.cacheFrameX2
+    var readEndY = this.cacheFrameY2
+
+    if (readStartX > readEndX) {
+      var middleX = readEndX
+      readEndX = readStartX
+      readStartX = middleX
     }
 
-    //判断是否与之前截图框重叠
-    for(var f=0;f<this.operatQuestion.frames.length;f++){
-      var frame = this.operatQuestion.frames[f]
-      if (frame.position&&frame.position != "") {
-        var positionObject = JSON.parse(frame.position)
-        if (this.currentStartX == positionObject.x1 && this.currentStartY == positionObject.y1 && this.currentEndX == positionObject.x2 && this.currentEndY == positionObject.y2) {
-          this.message['error']("此截框坐标与前面重叠！")
-          return
-        }
-      }
+    if (readStartY > readEndY) {
+      var middleY = readEndY
+      readEndY = readStartY
+      readStartY = middleY
     }
 
-    this.isShowFrame = false
+    // this.isShowFrame = false
     var object = new Object({
-      x1: this.currentStartX,
-      y1: this.currentStartY,
-      x2: this.currentEndX,
-      y2: this.currentEndY
+      scale: this.scale,
+      x1: readStartX,
+      y1: readStartY,
+      x2: readEndX,
+      y2: readEndY
     })
     var newFrame = new Frame()
     newFrame.position = JSON.stringify(object)
     this.operatQuestion.frames.push(newFrame)
+
+    this.currentStartX = 0
+    this.currentStartY = 0
+    this.currentEndX = 0
+    this.currentEndY = 0
+    this.drawCanvasFrame()
   }
 
   getPositionDetail(positionData) {

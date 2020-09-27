@@ -41,15 +41,38 @@ export class UserService {
     });
   }
 
+    /**
+   * 修改
+   *
+   */
+  setting(phone: string, grade: string,subjects: string,organ: string,address: string,introduce: string): Observable<UserResponse> {
+    const params = new HttpParams()
+      .set('phone', phone)
+      .set('grade', grade)
+      .set('subjects', subjects)
+      .set('organ', organ)
+      .set('address', address)
+      .set('introduce', introduce)
+
+    return this.httpClientService.post<UserResponse>('v1/user/setting', null, 0, params);
+  }
+
+
   /**
    * 注册
    *
    */
-  register(phone: string, password: string,code: string): Observable<UserResponse> {
+  register(username: string,phone: string, password: string,code: string,grade: string,subjects: string,organ: string,address: string,introduce: string): Observable<UserResponse> {
     const params = new HttpParams()
+      .set('username', username)
       .set('phone', phone)
       .set('password', password)
       .set('code', code)
+      .set('grade', grade)
+      .set('subjects', subjects)
+      .set('organ', organ)
+      .set('address', address)
+      .set('introduce', introduce)
 
     return this.httpClientService.post<UserResponse>('v1/user/register', null, 0, params);
   }

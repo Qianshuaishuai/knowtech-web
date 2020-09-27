@@ -1,13 +1,31 @@
 <div class="page">
-  <el-menu [model]="'1'" (modelChange)="modelChange($event)" class="el-menu" mode="horizontal"
-    background-color="#545c64" active-text-color="#ffd04b" text-color="#fff">
-    <el-menu-item index="1">同步书本</el-menu-item>
-    <el-menu-item index="2">单道试题</el-menu-item>
-  </el-menu>
-  <div class="user-box">
-    <div class="user-tip">{{userTip}}</div>
-    <div class="user-logout" (click)="logout()">退出</div>
+  <div class="top">
+    <img class="logo" src="../../assets/register/logo.png">
+    <div class="menu">
+      <div class="item" *ngIf="modelIndex != 1" (click)="modelChange(1)">
+        <img class="icon" src="../../assets/user/book-icon.png">
+        <div class="tip">同步书本</div>
+      </div>
+      <div class="item-select" *ngIf="modelIndex == 1">
+        <img src="../../assets/user/book-icon.png">
+        <div class="tip">同步书本</div>
+      </div>
+      <div class="item" style="margin-left: 36px;" *ngIf="modelIndex != 2" (click)="modelChange(2)">
+        <img src="../../assets/user/question-icon.png">
+        <div class="tip">单道试题</div>
+      </div>
+      <div class="item-select" style="margin-left: 36px;" *ngIf="modelIndex == 2">
+        <img src="../../assets/user/question-icon.png">
+        <div class="tip">单道试题</div>
+      </div>
+    </div>
+    <div class="user-box">
+      <img class="icon" src="../../assets/user/user-icon.png">
+      <div class="user-tip" (click)="goToSetting()">{{userTip}}</div>
+      <img class="back" src="../../assets/user/back.png" (click)="logout()">
+    </div>
   </div>
+
   <app-book *ngIf="modelIndex==1"></app-book>
   <app-question *ngIf="modelIndex==2"></app-question>
 </div>

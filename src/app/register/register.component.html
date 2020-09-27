@@ -56,18 +56,18 @@
         <img class="icon" src="../../assets/register/register.png">
         <div class="tip">欢迎注册亲知科技</div>
       </div>
-      <div class="register-box">
-        <div class="common-input" style="margin-top: 30px;">
+      <div class="register-box" [ngStyle]="{'height': currentRealModule == 3 ? '525px' : '825px' }">
+        <div class="common-input" style="margin-top: 30px;" *ngIf="currentRealModule != 3">
           <div class="must">*</div>
           <div class="tip">请填写用户名</div>
           <input class="input" type="text" placeholder="" [(ngModel)]="registerName">
         </div>
-        <div class="common-input">
+        <div class="common-input" *ngIf="currentRealModule != 3">
           <div class="must">*</div>
           <div class="tip">请填写手机号</div>
           <input class="input" type="text" placeholder="" [(ngModel)]="registerPhone">
         </div>
-        <div class="common-input">
+        <div class="common-input" *ngIf="currentRealModule != 3">
           <div class="must">*</div>
           <div class="tip">请填写验证码</div>
           <div class="verify-box">
@@ -77,12 +77,12 @@
             <span class="check" *ngIf="unClickTime != 0" style="color:#999999;">{{unClickTime}}秒后重新获取</span>
           </div>
         </div>
-        <div class="common-input">
+        <div class="common-input" *ngIf="currentRealModule != 3">
           <div class="must">*</div>
           <div class="tip">请填写密码</div>
           <input class="input" type="text" placeholder="" [(ngModel)]="registerPassword">
         </div>
-        <div class="common-input">
+        <div class="common-input" *ngIf="currentRealModule != 3">
           <div class="must">*</div>
           <div class="tip">再次输入密码</div>
           <input class="input" type="text" placeholder="" [(ngModel)]="registerAgainPassword">
@@ -133,7 +133,8 @@
 
         <div class="button-box">
           <div class="cancel" (click)="cancelRegister()">取消</div>
-          <div class="sure">确认注册</div>
+          <div class="sure" (click)="submit()" *ngIf="currentRealModule != 3">确认注册</div>
+          <div class="sure" (click)="submit()" *ngIf="currentRealModule == 3">确认修改</div>
         </div>
       </div>
     </div>

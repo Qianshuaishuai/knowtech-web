@@ -42,8 +42,11 @@ export class UserComponent implements OnInit {
 
   initUserTip(){
     const phone = this.messageService.getPhoneMessage()
-    if(phone){
-      this.userTip = "欢迎用户" + phone
+    const userInfo = this.messageService.getUserInfo()
+    if(userInfo.username){
+      this.userTip = "欢迎用户" + userInfo.username
+    }else{
+      this.userTip = "欢迎用户" + userInfo.phone
     }
   }
 
@@ -63,5 +66,10 @@ export class UserComponent implements OnInit {
         this.message['error'](response.F_responseMsg)
       }
     });
+  }
+
+  //跳转修改
+  goToSetting(){
+    this.router.navigate([`../register/3`], { relativeTo: this.route });
   }
 }

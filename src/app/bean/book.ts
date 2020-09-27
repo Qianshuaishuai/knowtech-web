@@ -1,6 +1,7 @@
 export class Book{
     id = 0
     userId = 0
+    subject = 0
     name = ""
     press = ""
     grade = 0

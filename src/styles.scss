@@ -13,4 +13,12 @@ body::-webkit-scrollbar {
     background: rgba(0,0,0,0.6)
 }
 
+.el-input{
+    width: 100% !important
+}
+
+.el-select{
+    display: block;
+}
+
 @import "~element-angular/theme/index.css"

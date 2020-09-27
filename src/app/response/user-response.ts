@@ -9,7 +9,10 @@ export class UserInfo {
     phone: string;
     enable: number;
     payword: string;
-    nickname: string;
-    sex: number;
-    company: string;
+    username: string;
+    grade : number;
+    subjects : string;
+    organ : string;
+    address : string;
+    introduce: string;
 }

@@ -10,7 +10,7 @@ import {
 } from 'rxjs';
 
 import {
-  OK_RESPONSE_NUMBER,
+  OK_RESPONSE_NUMBER, Subjects
 } from '../../app/constants'
 import {
   UserInfo
@@ -27,6 +27,7 @@ export class BookComponent implements OnInit {
   //对话框相关
   deleteTip = false
   deleteIndex = 0
+  isEditBook = false
 
   //loading相关
   loadingStatus = false
@@ -41,6 +42,8 @@ export class BookComponent implements OnInit {
   operatBook = new Book
   grades = Grades
   searchStr = ""
+
+  subjects = Subjects
 
   //网络相关
   userInfo = new UserInfo()
@@ -61,9 +64,26 @@ export class BookComponent implements OnInit {
   currentStartY = 0
   currentEndX = 0
   currentEndY = 0
+  scale = 1
   rectDatas = new Array()
   readySrc = ""
   currentPageIndex = 0
+
+  //新增画布逻辑相关
+  sureImage = new Image()
+  deleteImage = new Image()
+  uploadImage = new Image()
+  currentSureImageStartX = 0
+  currentSureImageStartY = 0
+  currentSureImageEndX = 0
+  currentSureImageEndY = 0
+  isSureStatus = false
+  currentFrameIndex = 0
+
+  cacheFrameX1 = 0
+  cacheFrameX2 = 0
+  cacheFrameY1 = 0
+  cacheFrameY2 = 0
 
   constructor(private message: ElMessageService,
     private bookService: BookService,
@@ -75,6 +95,16 @@ export class BookComponent implements OnInit {
     this.initCOSUploadConfig()
     this.getUserInfo()
     this.getBookList()
+    this.initCanvasImage()
+    this.drawCanvas()
+  }
+
+  initCanvasImage() {
+    this.sureImage.src = "../../assets/user/sure.png"
+    this.deleteImage.src = "../../assets/user/delete-frame.png"
+    this.uploadImage.src = "../../assets/user/upload.png"
+    this.canvas = document.getElementById('canvas');
+    this.canvasPen = this.canvas.getContext("2d");
   }
 
   getUserInfo() {
@@ -86,6 +116,27 @@ export class BookComponent implements OnInit {
       SecretId: COS_APP_ID,
       SecretKey: COS_APP_SECRET,
     });
+  }
+
+  getSubjectName(id){
+    var subjectName = ""
+    this.subjects.forEach(subject => {
+      if(id == subject.id){
+        subjectName = subject.value
+      }
+    });
+
+    if(subjectName == ""){
+      subjectName = "未知科目"
+    }
+    return subjectName
+  }
+
+  selectSubject(index) {
+    this.subjects.forEach(element => {
+      element.status = false
+    });
+    this.subjects[index].status = true
   }
 
   dialogSure() {
@@ -107,13 +158,13 @@ export class BookComponent implements OnInit {
 
   //编辑
   edit(scope) {
-    const bookId = scope.rowData.id
+    const bookId = scope.id
     this.getBookDetail(bookId)
   }
 
   //删除
   delete(scope) {
-    const bookId = scope.rowData.id
+    const bookId = scope.id
     this.deleteIndex = bookId
     this.deleteTip = true
   }
@@ -144,7 +195,12 @@ export class BookComponent implements OnInit {
     this.bookSubscription = this.bookService.getDetail(String(bookId)).subscribe(response => {
       if (response.F_responseNo == OK_RESPONSE_NUMBER) {
         this.operatBook = response.F_data
-        this.modelIndex = 2
+        this.isEditBook = true
+        this.subjects.forEach(subject => {
+          if(subject.id == this.operatBook.subject){
+            subject.status = true
+          }
+        });
       } else {
       }
     });
@@ -188,8 +244,9 @@ export class BookComponent implements OnInit {
 
   //添加新书本
   addNewBook() {
-    this.modelIndex = 2
+    // this.modelIndex = 2
     this.operatBook = new Book()
+    this.isEditBook = true
   }
 
   //返回上一级
@@ -203,7 +260,7 @@ export class BookComponent implements OnInit {
   }
 
   //上传框图资源
-  uploadResource(event, pageIndex, frameIndex) {
+  uploadResource(event) {
     const keyName = new Date().getTime() + new Random().randomString(8);
     if (event) {
       var that = this
@@ -222,10 +279,14 @@ export class BookComponent implements OnInit {
         that.message['success']('上传成功')
         var resourceUrl = "https://" + data.Location
 
-        that.operatBook.pages[pageIndex].frames[frameIndex].resourceUrl = resourceUrl
-        console.log(that.operatBook)
+        that.operatBook.pages[that.currentPageIndex].frames[that.currentFrameIndex].resourceUrl = resourceUrl
+        that.drawCanvasFrame()
       });
     }
+  }
+
+  cancelEditBook() {
+    this.isEditBook = false
   }
 
   //选择图片后监听 
@@ -323,6 +384,19 @@ export class BookComponent implements OnInit {
       return false
     }
 
+    var subjectIsSelect = false
+    this.subjects.forEach(subject => {
+      if (subject.status) {
+        subjectIsSelect = true
+        this.operatBook.subject = subject.id
+      }
+    });
+
+    if (!subjectIsSelect) {
+      this.message['warning']("请先选择科目")
+      return false
+    }
+
     if (!this.operatBook.pubDate) {
       this.message['warning']("请先选择出版日期")
       return false
@@ -389,7 +463,8 @@ export class BookComponent implements OnInit {
     this.bookSubscription = this.bookService.addBook(String(userId), JSON.stringify(this.operatBook)).subscribe(response => {
       if (response.F_responseNo == OK_RESPONSE_NUMBER) {
         this.message['success']("新建成功")
-        this.modelIndex = 1
+        this.isEditBook = false
+        this.isShowFrame = false
         this.operatBook = new Book()
         this.getBookList()
       } else {
@@ -403,7 +478,8 @@ export class BookComponent implements OnInit {
     this.bookSubscription = this.bookService.editBook(String(userId), String(bookId), JSON.stringify(this.operatBook)).subscribe(response => {
       if (response.F_responseNo == OK_RESPONSE_NUMBER) {
         this.message['success']("更改成功")
-        this.modelIndex = 1
+        this.isEditBook = false
+        this.isShowFrame = false
         this.operatBook = new Book()
         this.getBookList()
       } else {
@@ -428,12 +504,15 @@ export class BookComponent implements OnInit {
       if (imgWidth > 1000 || imgHeight > 1000) {
         imgWidth = imgWidth / 3
         imgHeight = imgHeight / 3
+        that.scale = 3
       }
 
       that.frameWidth = imgWidth + "px"
       that.frameHeight = imgHeight + "px"
       that.canvasWidth = imgWidth
       that.canvasHeight = imgHeight
+
+      that.initCanvasFrame()
     }
 
     // img.onload = function () {
@@ -443,10 +522,18 @@ export class BookComponent implements OnInit {
     //画布动作监听
     this.canvas.onmousedown = (e) => {
       e.preventDefault();
-      that.isCanvasMouseDown = true
-      that.currentStartX = e.offsetX
-      that.currentStartY = e.offsetY
-      console.log(e)
+      if (this.judgeIsInUpload(e.offsetX, e.offsetY)) {
+        return
+      }
+      if (this.judgeIsInDelete(e.offsetX, e.offsetY)) {
+        return
+      }
+      this.judgeIsInSure(e.offsetX, e.offsetY)
+      if (!this.isSureStatus) {
+        that.isCanvasMouseDown = true
+        that.currentStartX = e.offsetX
+        that.currentStartY = e.offsetY
+      }
     }
     //鼠标按下，松开，移动，离开事件执行
     this.canvas.onmouseup = (e) => {
@@ -461,21 +548,28 @@ export class BookComponent implements OnInit {
     }
     this.canvas.onmousemove = (e) => {
       e.preventDefault();
-      if (that.isCanvasMouseDown) {
+      if (that.isCanvasMouseDown && !that.isSureStatus) {
         that.currentEndX = e.offsetX
         that.currentEndY = e.offsetY
         // that.drawCanvasFrame(that.canvasPen)
-        that.drawCanvasFrame(that.canvasPen)
+        that.drawCanvasFrame()
       }
     }
   }
 
+  initCanvasFrame(){
+    const ctx = this.canvas.getContext("2d");
 
-  drawCanvasFrame(ctx) {
     const startX = this.currentStartX
     const startY = this.currentStartY
     const endX = this.currentEndX
     const endY = this.currentEndY
+
+    this.cacheFrameX1 = this.currentStartX
+    this.cacheFrameY1 = this.currentStartY
+    this.cacheFrameX2 = this.currentEndX
+    this.cacheFrameY2 = this.currentEndY
+
     ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
     ctx.strokeStyle = "red"
     ctx.strokeWidth = 1
@@ -484,23 +578,183 @@ export class BookComponent implements OnInit {
     var rectWidth = Math.abs(startX - endX)
     var rectHeight = Math.abs(startY - endY)
 
+    //先绘制先前的
+    if (this.operatBook.pages[this.currentPageIndex]) {
+      this.operatBook.pages[this.currentPageIndex].frames.forEach(frame => {
+        var position = JSON.parse(frame.position)
+        var x1 = position.x1
+        var y1 = position.y1
+        var x2 = position.x2
+        var y2 = position.y2
+        var rectWidth1 = Math.abs(x1 - x2)
+        var rectHeight1 = Math.abs(y1 - y2)
+        
+        ctx.strokeRect(x1, y1, rectWidth1, rectHeight1);
+        ctx.drawImage(this.deleteImage, x1 + rectWidth1 - 16, y1 - 16)
+
+        if (frame.resourceUrl && frame.resourceUrl != "") {
+          ctx.font = 'bold 24px Arial'
+          ctx.fillStyle = "#1883D3";
+
+          ctx.fillText("已上传资源", x1 + rectWidth1 / 2 - 64, y1 + rectHeight1 / 2 + 8);
+        } else {
+          ctx.drawImage(this.uploadImage, x1 + rectWidth1 / 2 - 32, y1 + rectHeight1 / 2 - 32)
+        }
+
+      });
+    }
+
+  }
+
+  judgeIsInUpload(x, y) {
+
+    for (var i = 0; i < this.operatBook.pages[this.currentPageIndex].frames.length; i++) {
+      var frame = this.operatBook.pages[this.currentPageIndex].frames[i]
+      var position = JSON.parse(frame.position)
+      var x1 = position.x1
+      var y1 = position.y1
+      var x2 = position.x2
+      var y2 = position.y2
+      var rectWidth1 = Math.abs(x1 - x2)
+      var rectHeight1 = Math.abs(y1 - y2)
+
+      var uploadX1 = x1 + rectWidth1 / 2 - 32
+      var uploadY1 = y1 + rectHeight1 / 2 - 32
+      var uploadX2 = x1 + rectWidth1 / 2 + 32
+      var uploadY2 = y1 + rectHeight1 / 2 + 32
+      if (x <= uploadX2 && x >= uploadX1 && y <= uploadY2 && y >= uploadY1) {
+        if (!(frame.resourceUrl && frame.resourceUrl != "")) {
+          var id = "frame-resource"
+          document.getElementById(id).click();
+          this.currentFrameIndex = i
+          return true
+        }
+      }
+    }
+
+    return false
+  }
+
+  judgeIsInDelete(x, y) {
+
+    for (var i = 0; i < this.operatBook.pages[this.currentPageIndex].frames.length; i++) {
+      var frame = this.operatBook.pages[this.currentPageIndex].frames[i]
+      var position = JSON.parse(frame.position)
+      var x1 = position.x1
+      var y1 = position.y1
+      var x2 = position.x2
+      var y2 = position.y2
+      var rectWidth1 = Math.abs(x1 - x2)
+      var rectHeight1 = Math.abs(y1 - y2)
+      var deleteX1 = x1 + rectWidth1 - 16
+      var deleteY1 = y1 - 16
+      var deleteX2 = x1 + rectWidth1 + 16
+      var deleteY2 = y1 + 16
+      if (x <= deleteX2 && x >= deleteX1 && y <= deleteY2 && y >= deleteY1) {
+        this.operatBook.pages[this.currentPageIndex].frames.splice(i, 1)
+        this.drawCanvasFrame()
+        return true
+      }
+    }
+
+    return false
+  }
+
+  judgeIsInSure(x, y) {
+    if (x <= this.currentSureImageEndX && x >= this.currentSureImageStartX && y <= this.currentSureImageEndY && y >= this.currentSureImageStartY) {
+      this.isSureStatus = true
+      this.frameSure()
+    } else {
+      this.isSureStatus = false
+    }
+  }
+
+  drawCanvasFrame() {
+
+    const ctx = this.canvasPen 
+
+    const startX = this.currentStartX
+    const startY = this.currentStartY
+    const endX = this.currentEndX
+    const endY = this.currentEndY
+
+    this.cacheFrameX1 = this.currentStartX
+    this.cacheFrameY1 = this.currentStartY
+    this.cacheFrameX2 = this.currentEndX
+    this.cacheFrameY2 = this.currentEndY
+
+    ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
+    ctx.strokeStyle = "red"
+    ctx.strokeWidth = 1
+    ctx.lineWidth = 1
+
+    var rectWidth = Math.abs(startX - endX)
+    var rectHeight = Math.abs(startY - endY)
+
+    //先绘制先前的
+    if (this.operatBook.pages[this.currentPageIndex]) {
+      this.operatBook.pages[this.currentPageIndex].frames.forEach(frame => {
+        var position = JSON.parse(frame.position)
+        var x1 = position.x1
+        var y1 = position.y1
+        var x2 = position.x2
+        var y2 = position.y2
+        var rectWidth1 = Math.abs(x1 - x2)
+        var rectHeight1 = Math.abs(y1 - y2)
+        
+        ctx.strokeRect(x1, y1, rectWidth1, rectHeight1);
+        ctx.drawImage(this.deleteImage, x1 + rectWidth1 - 16, y1 - 16)
+
+        if (frame.resourceUrl && frame.resourceUrl != "") {
+          ctx.font = 'bold 24px Arial'
+          ctx.fillStyle = "#1883D3";
+
+          ctx.fillText("已上传资源", x1 + rectWidth1 / 2 - 64, y1 + rectHeight1 / 2 + 8);
+        } else {
+          ctx.drawImage(this.uploadImage, x1 + rectWidth1 / 2 - 32, y1 + rectHeight1 / 2 - 32)
+        }
+
+      });
+    }
+
+
     if (endX >= startX) {
       if (endY >= startY) {
         ctx.strokeRect(startX, startY, rectWidth, rectHeight);
       } else {
         ctx.strokeRect(startX, startY, rectWidth, -rectHeight);
       }
+      if (!(startX == 0 && endY == 0)) {
+        ctx.drawImage(this.sureImage, startX + rectWidth - 16, startY - 16)
+
+        this.currentSureImageStartX = startX + rectWidth - 16
+        this.currentSureImageStartY = startY - 16
+        this.currentSureImageEndX = startX + rectWidth + 16
+        this.currentSureImageEndY = startY + 16
+      }
+
     } else {
       if (endY >= startY) {
         ctx.strokeRect(startX, startY, -rectWidth, rectHeight);
       } else {
         ctx.strokeRect(startX, startY, -rectWidth, -rectHeight);
       }
+
+      if (!(startX == 0 && endY == 0)) {
+        ctx.drawImage(this.sureImage, startX - rectWidth - 16, startY - 16)
+        this.currentSureImageStartX = startX - rectWidth - 16
+        this.currentSureImageStartY = startY - 16
+        this.currentSureImageEndX = startX - rectWidth + 16
+        this.currentSureImageEndY = startY + 16
+      }
+
     }
+
 
   }
 
   frameCancel() {
+    // this.frameReset()
     this.isShowFrame = false
   }
 
@@ -512,6 +766,11 @@ export class BookComponent implements OnInit {
     this.currentStartY = 0
     this.currentEndX = 0
     this.currentEndY = 0
+    this.operatBook.pages[this.currentPageIndex].frames.splice(0, this.operatBook.pages[this.currentPageIndex].frames.length)
+  }
+
+  frameNewSure() {
+    this.isShowFrame = false
   }
 
   frameSure() {
@@ -530,16 +789,40 @@ export class BookComponent implements OnInit {
       }
     }
 
-    this.isShowFrame = false
+    var readStartX = this.cacheFrameX1
+    var readStartY = this.cacheFrameY1
+    var readEndX = this.cacheFrameX2
+    var readEndY = this.cacheFrameY2
+
+    if (readStartX > readEndX) {
+      var middleX = readEndX
+      readEndX = readStartX
+      readStartX = middleX
+    }
+
+    if (readStartY > readEndY) {
+      var middleY = readEndY
+      readEndY = readStartY
+      readStartY = middleY
+    }
+
+    // this.isShowFrame = false
     var object = new Object({
-      x1: this.currentStartX,
-      y1: this.currentStartY,
-      x2: this.currentEndX,
-      y2: this.currentEndY
+      scale: this.scale,
+      x1: readStartX,
+      y1: readStartY,
+      x2: readEndX,
+      y2: readEndY
     })
     var newFrame = new Frame()
     newFrame.position = JSON.stringify(object)
     this.operatBook.pages[this.currentPageIndex].frames.push(newFrame)
+
+    this.currentStartX = 0
+    this.currentStartY = 0
+    this.currentEndX = 0
+    this.currentEndY = 0
+    this.drawCanvasFrame()
   }
 
   getPositionDetail(positionData) {
